@@ -5,32 +5,6 @@
 
 ---
 
-**Profesor Titular:** Ing. Jorge Luis Tillería Mereles  
-**Auxiliar de Práctica:** Univ. Carlos María Benítez Cardozo  
-**Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)**  
-**Ciclo 2026-02**
-
----
-
-## 📋 Tabla de Contenidos
-
-1. [Requisitos Previos y Configuración del Entorno](#requisitos-previos-y-configuración-del-entorno)
-2. [Fundamentos de Concurrencia con Asyncio](#1-fundamentos-de-concurrencia-con-asyncio)
-   - [1.1 Concurrencia vs. Multiprocesamiento vs. Threading](#11-concurrencia-vs-multiprocesamiento-vs-threading)
-   - [1.2 El Bucle de Eventos (Event Loop), Corrutinas y Tasks](#12-el-bucle-de-eventos-event-loop-corrutinas-y-tasks)
-   - [1.3 Paso de Mensajes: asyncio.Queue (Productor-Consumidor)](#13-paso-de-mensajes-asyncioqueue-productor-consumidor)
-   - [1.4 Prevención de Bloqueos del Event Loop](#14-prevención-de-bloqueos-del-event-loop)
-3. [Persistencia Temporal y Optimización en SQLite](#2-persistencia-temporal-y-optimización-en-sqlite)
-   - [2.1 SQLite en Sistemas Mecatrónicos Embebidos](#21-sqlite-en-sistemas-mecatrónicos-embebidos)
-   - [2.2 Modo WAL (Write-Ahead Logging) y Pragmas I/O](#22-modo-wal-write-ahead-logging-y-pragmas-io)
-   - [2.3 SQLite Síncrono (`sqlite3`) vs. Asíncrono (`aiosqlite`)](#23-sqlite-síncrono-sqlite3-vs-asíncrono-aiosqlite)
-   - [2.4 Modelado e Indexación de Series Temporales](#24-modelado-e-indexación-de-series-temporales)
-4. [Arquitectura Integrada del Sistema de Telemetría](#3-arquitectura-integrada-del-sistema-de-telemetría)
-5. [Estructura del Proyecto y Contenido Didáctico](#4-estructura-del-proyecto-y-contenido-didáctico)
-6. [Guía de Ejecución y Pruebas Unitarias](#5-guía-de-ejecución-y-pruebas-unitarias)
-
----
-
 ## Requisitos Previos y Configuración del Entorno
 
 Antes de comenzar con la clase y ejecutar los ejemplos en Python o Jupyter Notebooks, asegúrese de activar el entorno virtual de la asignatura **`lpv2026-2`** e instalar las dependencias gestionadas mediante **Poetry**:
