@@ -5,19 +5,46 @@
 
 ---
 
+**Profesor Titular:** Ing. Jorge Luis Tillería Mereles  
+**Auxiliar de Práctica:** Univ. Carlos María Benítez Cardozo  
+**Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)**  
+**Ciclo 2026-02**
+
+---
+
+## 📋 Tabla de Contenidos
+
+1. [Requisitos Previos y Configuración del Entorno](#requisitos-previos-y-configuración-del-entorno)
+2. [Fundamentos de Concurrencia con Asyncio](#1-fundamentos-de-concurrencia-con-asyncio)
+   - [1.1 Concurrencia vs. Multiprocesamiento vs. Threading](#11-concurrencia-vs-multiprocesamiento-vs-threading)
+   - [1.2 El Bucle de Eventos (Event Loop), Corrutinas y Tasks](#12-el-bucle-de-eventos-event-loop-corrutinas-y-tasks)
+   - [1.3 Paso de Mensajes: asyncio.Queue (Productor-Consumidor)](#13-paso-de-mensajes-asyncioqueue-productor-consumidor)
+   - [1.4 Prevención de Bloqueos del Event Loop](#14-prevención-de-bloqueos-del-event-loop)
+3. [Persistencia Temporal y Optimización en SQLite](#2-persistencia-temporal-y-optimización-en-sqlite)
+   - [2.1 SQLite en Sistemas Mecatrónicos Embebidos](#21-sqlite-en-sistemas-mecatrónicos-embebidos)
+   - [2.2 Modo WAL (Write-Ahead Logging) y Pragmas I/O](#22-modo-wal-write-ahead-logging-y-pragmas-io)
+   - [2.3 SQLite Síncrono (`sqlite3`) vs. Asíncrono (`aiosqlite`)](#23-sqlite-síncrono-sqlite3-vs-asíncrono-aiosqlite)
+   - [2.4 Modelado e Indexación de Series Temporales](#24-modelado-e-indexación-de-series-temporales)
+4. [Arquitectura Integrada del Sistema de Telemetría](#3-arquitectura-integrada-del-sistema-de-telemetría)
+5. [Estructura del Proyecto y Contenido Didáctico](#4-estructura-del-proyecto-y-contenido-didáctico)
+6. [Guía de Ejecución y Pruebas Unitarias](#5-guía-de-ejecución-y-pruebas-unitarias)
+
+---
+
 ## Requisitos Previos y Configuración del Entorno
 
-Antes de comenzar con la clase y ejecutar los ejemplos en Python o Jupyter Notebooks, asegúrese de activar el entorno virtual de la asignatura e instalar los paquetes requeridos ejecutando los siguientes comandos en su terminal:
+Antes de comenzar con la clase y ejecutar los ejemplos en Python o Jupyter Notebooks, asegúrese de activar el entorno virtual de la asignatura **`lpv2026-2`** e instalar las dependencias gestionadas mediante **Poetry**:
 
 ```bash
 # 1. Activar el entorno virtual de la materia
 conda activate lpv2026-2
 
-# 2. Instalar dependencias del proyecto
-pip install -r requirements.txt
-
-# 3. Registrar el entorno virtual lpv2026-2 como Kernel en Jupyter
+# 2. Registrar el entorno virtual lpv2026-2 como Kernel en Jupyter
 python -m ipykernel install --user --name lpv2026-2 --display-name "Python (lpv2026-2)"
+
+# 3. Navegar al directorio del proyecto e instalar dependencias con Poetry
+cd proyecto_sqlite_asyncio
+poetry install
 ```
 
 > **Nota:** Al abrir cualquier archivo Notebook (`.ipynb`) en Jupyter Notebook, JupyterLab o VS Code, seleccione el Kernel denominado **`Python (lpv2026-2)`** en la esquina superior derecha.
@@ -245,16 +272,15 @@ sequenceDiagram
 
 ## 4. Estructura del Proyecto y Contenido Didáctico
 
-El material de esta semana está organizado en dos componentes principales: un **Jupyter Notebook interactivo** para la exploración guiada y un **Proyecto Python Modular** listo para producción.
+El material de esta semana está organizado en dos componentes principales: un **Jupyter Notebook interactivo** para la exploración guiada y un **Proyecto Python Modular** listo para producción administrado con **Poetry**.
 
 ```
 d:\Materiales de Auxiliar\1. Lenguaje de Programacion Visual\
 ├── README.md                              # Documentación principal de la materia
-├── requirements.txt                       # Dependencias globales del entorno
 ├── notebook_semana3_asyncio_sqlite.ipynb  # Notebook interactivo teórico-práctico
 └── proyecto_sqlite_asyncio/               # Proyecto Python modular equivalente
-    ├── README.md                          # Guía específica del proyecto
-    ├── requirements.txt                   # Dependencias del proyecto
+    ├── README.md                          # Guía específica del proyecto con Poetry
+    ├── pyproject.toml                     # Configuración y dependencias administradas con Poetry
     ├── main.py                            # Punto de entrada (Simulación interactiva)
     ├── config/
     │   └── settings.py                    # Configuración de sensores, paths y batching
@@ -274,7 +300,7 @@ d:\Materiales de Auxiliar\1. Lenguaje de Programacion Visual\
 ### Enlaces Directos a los Componentes:
 
 - 📓 **Jupyter Notebook Práctico:** [notebook_semana3_asyncio_sqlite.ipynb](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/notebook_semana3_asyncio_sqlite.ipynb)
-- 📦 **Archivo de Requisitos:** [requirements.txt](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/requirements.txt)
+- ⚙️ **Configuración Poetry:** [proyecto_sqlite_asyncio/pyproject.toml](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_sqlite_asyncio/pyproject.toml)
 - 🚀 **Proyecto Python Modular:** [proyecto_sqlite_asyncio/](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_sqlite_asyncio)
   - [main.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_sqlite_asyncio/main.py)
   - [config/settings.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_sqlite_asyncio/config/settings.py)
@@ -291,12 +317,19 @@ d:\Materiales de Auxiliar\1. Lenguaje de Programacion Visual\
 ### 1. Apertura y Ejecución del Notebook
 Abra Jupyter Lab o VS Code en el directorio de la materia y seleccione el Kernel **`Python (lpv2026-2)`** para ejecutar [notebook_semana3_asyncio_sqlite.ipynb](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/notebook_semana3_asyncio_sqlite.ipynb).
 
-### 2. Ejecución del Proyecto Python de Telemetría
-Para iniciar la simulación en tiempo real de los sensores asíncronos y la persistencia en SQLite:
+### 2. Instalación y Ejecución con Poetry
+Asegúrese de tener activo el entorno **`lpv2026-2`** y ejecute:
 
 ```bash
+# Activar entorno virtual
+conda activate lpv2026-2
+
+# Entrar al directorio del proyecto e instalar dependencias con Poetry
 cd proyecto_sqlite_asyncio
-python main.py
+poetry install
+
+# Ejecutar la simulación principal
+poetry run python main.py
 ```
 
 #### Salida esperada en consola:
@@ -325,10 +358,12 @@ python main.py
 ```
 
 ### 3. Ejecución de Pruebas Unitarias y Asíncronas
-El proyecto incluye un conjunto de pruebas automatizadas escritas con `pytest` y `pytest-asyncio` para garantizar la corrección de las operaciones de base de datos y la concurrencia:
+El proyecto incluye pruebas automatizadas con `pytest` y `pytest-asyncio` ejecutadas mediante Poetry:
 
 ```bash
 cd proyecto_sqlite_asyncio
-pytest tests/
+poetry run pytest tests/
 ```
 
+---
+*Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)*

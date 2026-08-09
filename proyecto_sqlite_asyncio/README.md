@@ -1,6 +1,6 @@
 # Proyecto Mecatrónico: Telemetría Asíncrona con Asyncio y SQLite
 
-Este proyecto demuestra la implementación de un sistema de adquisición y persistencia de telemetría mecatrónica multicanal en tiempo real, utilizando **Asyncio** para la concurrencia I/O y **SQLite (aiosqlite)** optimizado en modo **WAL (Write-Ahead Logging)** para la persistencia temporal.
+Este proyecto demuestra la implementación de un sistema de adquisición y persistencia de telemetría mecatrónica multicanal en tiempo real, utilizando **Asyncio** para la concurrencia I/O y **SQLite (aiosqlite)** optimizado en modo **WAL (Write-Ahead Logging)** para la persistencia temporal. La gestión de dependencias y empaquetado del proyecto se realiza mediante **Poetry** integrado sobre el entorno virtual de la asignatura (`lpv2026-2`).
 
 ---
 
@@ -19,17 +19,21 @@ Este proyecto demuestra la implementación de un sistema de adquisición y persi
 
 ---
 
-## 🚀 Requisitos e Instalación
+## 🚀 Requisitos e Instalación con Poetry
 
-1. Activar el entorno virtual de la materia:
-```bash
-conda activate lpv2026-2
-```
+1. **Activar el entorno virtual de la asignatura:**
+   ```bash
+   conda activate lpv2026-2
+   ```
 
-2. Instalar dependencias del proyecto:
-```bash
-pip install -r requirements.txt
-```
+2. **Instalar todas las dependencias del proyecto con Poetry:**
+   Navegue al directorio del proyecto y ejecute `poetry install`:
+   ```bash
+   cd proyecto_sqlite_asyncio
+   poetry install
+   ```
+
+   > **Nota:** `poetry install` leerá el archivo [`pyproject.toml`](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_sqlite_asyncio/pyproject.toml) e instalará automáticamente todas las dependencias requeridas (incluyendo las herramientas de desarrollo como `pytest` e `ipykernel`) dentro del entorno virtual.
 
 ---
 
@@ -37,18 +41,19 @@ pip install -r requirements.txt
 
 ### 1. Ejecutar la Simulación Principal
 ```bash
-python main.py
+poetry run python main.py
 ```
 
 ### 2. Ejecutar Pruebas Automatizadas
 ```bash
-pytest tests/
+poetry run pytest tests/
 ```
 
 ---
 
-## 📊 Estructura de Directorios
+## 📊 Estructura del Proyecto (`pyproject.toml`)
 
+- `pyproject.toml`: Archivo de configuración central de Poetry con las dependencias y metadatos del proyecto.
 - `config/settings.py`: Configuración global (rutas DB, frecuencias, batch size).
 - `src/database.py`: Gestor SQLite con `aiosqlite`.
 - `src/sensors.py`: Generador de datos físicos multicanal.
