@@ -40,3 +40,13 @@ def test_get_nodal_tree_endpoint():
     assert isinstance(tree, list)
     # Verificar que el nodo raíz posee estructura con children
     assert "children" in tree[0]
+
+
+def test_clear_database_endpoint():
+    response = client.delete("/api/database")
+    assert response.status_code == 200
+    assert response.json()["message"] == "Base de datos vaciada exitosamente."
+
+    stats_res = client.get("/api/stats")
+    assert stats_res.json()["total_commits"] == 0
+

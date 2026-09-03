@@ -125,6 +125,43 @@ flowchart TD
     Browser -- "3. REST API / JSON (/api/nodal-tree)" --> FastAPI
 ```
 
+---
+
+### 2.1.1 Flujo Secuencial de Web Scraping y Procesamiento de Datos
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Usuario as 💻 Usuario (SPA Frontend)
+    participant API as 🖥️ FastAPI (main.py)
+    participant Scraper as 🕷️ Scraper (scraper.py)
+    participant GitHub as 🌐 GitHub Cloud
+    participant Pydantic as 🛡️ Pydantic v2 (schemas.py)
+    participant DB as 🗄️ SQLite WAL (database.py)
+
+    Usuario->>API: POST /api/scrape { repo_url, max_commits }
+    API->>DB: Limpiar tablas (Reiniciar BD para nuevo Repo)
+    API->>Scraper: fetch_commits_html(repo_url)
+    Scraper->>GitHub: HTTP GET /commits/main (Rotación User-Agent)
+    alt Retorno Exitoso (HTTP 200)
+        GitHub-->>Scraper: HTML Crudo del DOM de GitHub
+    else Bloqueo o Error de Red (HTTP 404 / 403)
+        Scraper-->>Scraper: Fallback a Motor Resiliente Sintáctico
+    end
+    Scraper->>Scraper: parse_commits_html() (BeautifulSoup4 + DOM Selectors)
+    Scraper->>Pydantic: Validar, Sanitizar y Coercer Datos (CommitNodeCreate)
+    Pydantic-->>Scraper: Lista de Objetos de Dominio Validados
+    Scraper-->>API: Retornar Nodos de Commits
+    API->>DB: Persistir Autores, Commits y Archivos (SQLAlchemy ORM)
+    API-->>Usuario: HTTP 201 {"message", "inserted_count"}
+    Usuario->>API: GET /api/nodal-tree
+    API->>DB: Consultar Registro Histórico de Commits
+    DB-->>API: Lista de CommitNodeORM
+    API->>API: Reconstrucción Jerárquica Recursiva (Map Hash & parent_hash)
+    API-->>Usuario: JSON Arborescente (TreeNodeSchema [])
+    Usuario->>Usuario: Renderizar Serie Temporal, Ramas y Conexiones en Lienzo SVG
+```
+
 > [!IMPORTANT]
 > **Observación Técnica: Definición y Función del Orquestador en el Servidor**
 > 

@@ -74,20 +74,27 @@ async def trigger_scrape_repo(payload: ScrapeTargetRequest, db: Session = Depend
     owner, repo_name = scraper.extract_repo_owner_name(payload.repo_url)
     full_repo = f"{owner}/{repo_name}"
 
-    try:
-        html_content = await scraper.fetch_commits_html(payload.repo_url)
-    except Exception as e:
-        # Fallback a generación sintáctica segura ante errores de red/bloqueo
-        print(f"Scraping fallido ({e}). Ejecutando motor resilitente sintáctico.")
-        html_content = ""
-
-    parsed_commits = scraper.parse_commits_html(html_content, full_repo, limit=payload.max_commits)
-
-    # Reiniciar la base de datos por completo para cada nuevo repositorio analizado
+    # 1. Reiniciar la base de datos por completo inmediatamente al cargar un nuevo repositorio
     db.query(FileChangeORM).delete()
     db.query(CommitNodeORM).delete()
     db.query(AuthorORM).delete()
     db.commit()
+
+    # 2. Descubrir ramas reales expuestas en GitHub para este repositorio
+    discovered_branches = await scraper.fetch_discovered_branches(payload.repo_url)
+
+    try:
+        html_content = await scraper.fetch_commits_html(payload.repo_url)
+    except Exception as e:
+        print(f"Scraping de commits fallido ({e}). Ejecutando motor resiliente sintáctico.")
+        html_content = ""
+
+    parsed_commits = scraper.parse_commits_html(
+        html_content,
+        full_repo,
+        limit=payload.max_commits,
+        discovered_branches=discovered_branches
+    )
 
     inserted_count = 0
     for commit_data in parsed_commits:
@@ -252,3 +259,14 @@ def get_repository_stats(db: Session = Depends(get_db)):
         "total_deletions": total_deletions,
         "net_line_changes": total_additions - total_deletions
     }
+
+
+@app.delete("/api/database", status_code=status.HTTP_200_OK)
+def clear_database(db: Session = Depends(get_db)):
+    """Elimina todos los registros almacenados en la base de datos."""
+    db.query(FileChangeORM).delete()
+    db.query(CommitNodeORM).delete()
+    db.query(AuthorORM).delete()
+    db.commit()
+    return {"message": "Base de datos vaciada exitosamente."}
+

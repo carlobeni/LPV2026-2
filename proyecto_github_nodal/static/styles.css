@@ -142,6 +142,15 @@ body {
     background-color: #2563eb;
 }
 
+.btn-danger {
+    background-color: var(--accent-red);
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
 .btn-outline {
     background: transparent;
     border: 1px solid var(--border-color);
@@ -150,6 +159,20 @@ body {
 
 .btn-outline:hover {
     background: rgba(255, 255, 255, 0.05);
+}
+
+/* SVG Text Styles */
+.commit-msg-text {
+    font-size: 10px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    fill: #cbd5e1;
+}
+
+.commit-date-text {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    fill: #94a3b8;
 }
 
 /* KPIs */

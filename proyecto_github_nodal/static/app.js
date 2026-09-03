@@ -12,7 +12,42 @@ document.addEventListener("DOMContentLoaded", () => {
     if (scrapeForm) {
         scrapeForm.addEventListener("submit", handleScrapeSubmit);
     }
+
+    const btnClearDb = document.getElementById("btn-clear-db");
+    if (btnClearDb) {
+        btnClearDb.addEventListener("click", handleClearDb);
+    }
 });
+
+async function handleClearDb() {
+    if (!confirm("¿Está seguro de que desea vaciar toda la base de datos?")) {
+        return;
+    }
+    const btnClear = document.getElementById("btn-clear-db");
+    const statusBanner = document.getElementById("status-message");
+    btnClear.disabled = true;
+
+    try {
+        const response = await fetch("/api/database", {
+            method: "DELETE"
+        });
+        const resData = await response.json();
+        if (response.ok) {
+            statusBanner.className = "alert success";
+            statusBanner.textContent = resData.message || "Base de Datos vaciada exitosamente.";
+            fetchStats();
+            loadNodalTree();
+        } else {
+            statusBanner.className = "alert error";
+            statusBanner.textContent = `Error: ${resData.detail || "No se pudo vaciar la BD."}`;
+        }
+    } catch (err) {
+        statusBanner.className = "alert error";
+        statusBanner.textContent = "Error de red al comunicarse con el backend FastAPI.";
+    } finally {
+        btnClear.disabled = false;
+    }
+}
 
 async function fetchStats() {
     try {
@@ -50,8 +85,15 @@ async function handleScrapeSubmit(event) {
     const maxCommits = parseInt(document.getElementById("max-commits").value, 10);
 
     btnScrape.disabled = true;
-    btnScrape.textContent = "Analizando & Reiniciando BD...";
+    btnScrape.textContent = "Analizando & Cargando Repositorio...";
     statusBanner.className = "alert hidden";
+
+    // Limpiar inmediatamente la visualización y KPIs anteriores para no mezclar repositorios
+    renderTimeSeriesGraph([]);
+    document.getElementById("stat-commits").textContent = "0";
+    document.getElementById("stat-authors").textContent = "0";
+    document.getElementById("stat-additions").textContent = "+0";
+    document.getElementById("stat-deletions").textContent = "-0";
 
     try {
         const response = await fetch("/api/scrape", {
@@ -94,9 +136,9 @@ function renderTimeSeriesGraph(roots) {
     const detailPanel = document.getElementById("commit-detail-content");
 
     if (!roots || roots.length === 0) {
-        svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#94a3b8" font-size="13">No hay ningún repositorio cargado. Ingrese una URL arriba y presione 'Analizar & Cargar Repositorio'.</text>`;
+        svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#94a3b8" font-size="13">No hay ningún repositorio cargado o la BD está vacía. Ingrese una URL arriba y presione 'Analizar & Cargar Repositorio'.</text>`;
         if (detailPanel) {
-            detailPanel.innerHTML = `<p class="placeholder-text">Ingresa una URL de GitHub arriba y ejecuta el análisis para visualizar el grafo nodal de cambios.</p>`;
+            detailPanel.innerHTML = `<p class="placeholder-text">La base de datos está vacía. Ingresa una URL de GitHub arriba y ejecuta el análisis para cargar commits.</p>`;
         }
         return;
     }
@@ -120,8 +162,8 @@ function renderTimeSeriesGraph(roots) {
     branches.sort((a, b) => (a === "main" || a === "master" ? -1 : 1));
 
     const branchLanes = {};
-    const laneHeight = 85;
-    const startY = 75;
+    const laneHeight = 115;
+    const startY = 85;
 
     branches.forEach((bName, index) => {
         branchLanes[bName] = startY + index * laneHeight;
@@ -131,11 +173,11 @@ function renderTimeSeriesGraph(roots) {
     const wrapper = document.getElementById("svg-wrapper");
     const containerWidth = wrapper ? wrapper.clientWidth : 750;
 
-    const marginX = 120;
+    const marginX = 140;
     const availableWidth = Math.max(300, containerWidth - marginX * 2);
     const stepX = allNodesList.length > 1 
-        ? Math.max(110, availableWidth / (allNodesList.length - 1))
-        : 150;
+        ? Math.max(140, availableWidth / (allNodesList.length - 1))
+        : 160;
 
     // Asignar coordenadas X, Y a cada nodo
     const nodesMapByHash = {};
@@ -150,8 +192,8 @@ function renderTimeSeriesGraph(roots) {
         };
     });
 
-    const totalWidth = Math.max(containerWidth, marginX * 2 + (allNodesList.length - 1) * stepX + 60);
-    const totalHeight = Math.max(460, startY + branches.length * laneHeight + 50);
+    const totalWidth = Math.max(containerWidth, marginX * 2 + (allNodesList.length - 1) * stepX + 80);
+    const totalHeight = Math.max(480, startY + branches.length * laneHeight + 60);
     svg.setAttribute("width", totalWidth);
     svg.setAttribute("height", totalHeight);
 
@@ -201,7 +243,7 @@ function renderTimeSeriesGraph(roots) {
         }
     });
 
-    // 6. Dibujar Nodos de Commits (Circulos y Etiquetas sobre la Serie Temporal)
+    // 6. Dibujar Nodos de Commits (Circulos, Mensaje, Hash, Autor, Fecha y Hora sobre la Serie Temporal)
     allNodesList.forEach(node => {
         const nodeObj = nodesMapByHash[node.hash];
 
@@ -218,6 +260,15 @@ function renderTimeSeriesGraph(roots) {
         circle.setAttribute("stroke-width", "1.5");
         circle.classList.add("commit-node");
 
+        // Etiqueta de Parte/Snippet del Mensaje del Commit (arriba)
+        const msgSnippet = node.message.length > 20 ? node.message.substring(0, 20) + "..." : node.message;
+        const textMsg = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textMsg.setAttribute("x", nodeObj.x);
+        textMsg.setAttribute("y", nodeObj.y - 28);
+        textMsg.setAttribute("text-anchor", "middle");
+        textMsg.classList.add("commit-msg-text");
+        textMsg.textContent = `"${msgSnippet}"`;
+
         // Etiqueta de Hash corto
         const textHash = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textHash.setAttribute("x", nodeObj.x);
@@ -229,14 +280,27 @@ function renderTimeSeriesGraph(roots) {
         // Etiqueta de Autor
         const textAuthor = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textAuthor.setAttribute("x", nodeObj.x);
-        textAuthor.setAttribute("y", nodeObj.y + 20);
+        textAuthor.setAttribute("y", nodeObj.y + 18);
         textAuthor.setAttribute("text-anchor", "middle");
         textAuthor.classList.add("commit-author-text");
         textAuthor.textContent = `@${node.author.username}`;
 
+        // Etiqueta de Fecha y Hora del Commit
+        const d = new Date(node.timestamp);
+        const pad = (n) => String(n).padStart(2, "0");
+        const formattedDateTime = `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        const textDate = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textDate.setAttribute("x", nodeObj.x);
+        textDate.setAttribute("y", nodeObj.y + 32);
+        textDate.setAttribute("text-anchor", "middle");
+        textDate.classList.add("commit-date-text");
+        textDate.textContent = formattedDateTime;
+
         group.appendChild(circle);
+        group.appendChild(textMsg);
         group.appendChild(textHash);
         group.appendChild(textAuthor);
+        group.appendChild(textDate);
 
         group.addEventListener("click", () => displayCommitDetails(node));
         svg.appendChild(group);
