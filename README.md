@@ -12,7 +12,30 @@
 
 ---
 
-![FastAPI Mechatronics IoT Monitoring Dashboard](assets/fastapi_dashboard.jpg)
+```mermaid
+graph LR
+    subgraph Entrada["1. Entrada de Datos"]
+        Sensor["Sensor Físico / Cliente HTTP"]
+        Payload["Payload JSON\n{nombre, tipo, valor, umbral}"]
+    end
+
+    subgraph FastAPI_Pydantic["2. Procesamiento & Validación"]
+        Uvicorn["Servidor ASGI (Uvicorn)"]
+        Router["FastAPI Router (/sensores)"]
+        Pydantic["Esquemas Pydantic v2\n- Coerción de Tipos\n- Validaciones de Rango\n- @field_validator"]
+        DI["Inyección de Dependencias\n(Depends: get_db)"]
+    end
+
+    subgraph Salida_Persistencia["3. Persistencia & Salida"]
+        SQLite[("SQLite WAL Mode\n(telemetria_api.db)")]
+        Doc["OpenAPI 3.1.0\nSwagger UI (/docs)"]
+        JSONResp["Respuesta JSON\nHTTP 200 / 201"]
+    end
+
+    Sensor --> Payload --> Uvicorn --> Router --> Pydantic --> DI --> SQLite
+    Router --> Doc
+    Router --> JSONResp
+```
 
 ---
 
@@ -307,8 +330,6 @@ d:\Materiales de Auxiliar\1. Lenguaje de Programacion Visual\
 ├── README.md                                  # Documentación principal de la materia
 ├── Plan de clases 2026-02.pdf
 ├── Manual de SQL.pdf
-├── assets/
-│   └── fastapi_dashboard.jpg                  # Infografía de telemetría y Swagger UI
 └── proyecto_fastapi_pydantic/                 # Microservicio FastAPI con Pydantic v2
     ├── README.md                              # Documentación técnica del microservicio
     ├── pyproject.toml                         # Configuración y dependencias con Poetry

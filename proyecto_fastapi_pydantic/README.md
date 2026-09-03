@@ -4,10 +4,6 @@ Microservicio web REST desarrollado con **FastAPI** y **Pydantic v2** para la ge
 
 ---
 
-![FastAPI Mechatronics IoT Monitoring Dashboard](../assets/fastapi_dashboard.jpg)
-
----
-
 ## 🛠️ Arquitectura del Microservicio
 
 ```mermaid
