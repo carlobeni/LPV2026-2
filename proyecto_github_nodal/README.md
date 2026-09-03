@@ -15,20 +15,34 @@ Este proyecto combina los contenidos de las **Semanas 4 y 5** en un único desar
 ---
 
 ```mermaid
-flowchart LR
-    subgraph Scraping["1. Extracción & Validación"]
-        GitHub["GitHub Repo<br/>(Commits Web)"] --> Scraper["Web Scraper<br/>(HTTPX + BS4)"]
-        Scraper --> Pydantic["Pydantic v2<br/>(Validación de Tipos)"]
+flowchart TD
+    subgraph Cloud["🌐 Nube de GitHub (Servidor Externo)"]
+        GitHub["GitHub Repo<br/>(Páginas de Commits HTML)"]
     end
 
-    subgraph Backend["2. Persistencia & API REST"]
-        Pydantic --> DB[("SQLite DB<br/>(github_nodal.db)")]
-        DB --> FastAPI["FastAPI Server<br/>(Endpoints REST)"]
+    subgraph AppServer["🖥️ Servidor de Aplicación (Host de la API)"]
+        Scraper["Motor Web Scraper<br/>(HTTPX + BS4)"]
+        Pydantic["Validación Pydantic v2"]
+        FastAPI["Servicio Web FastAPI<br/>(Endpoints REST & JSON)"]
+        
+        Scraper --> Pydantic
+        Pydantic --> FastAPI
     end
 
-    subgraph Frontend["3. Visualización"]
-        FastAPI --> Visualizer["Visualizador Web<br/>(Árbol Nodal SVG)"]
+    subgraph DBDevice["🗄️ Dispositivo Independiente de BD (Servidor BD)"]
+        ScriptInit["Script Independiente<br/>(init_db.py)"]
+        SQLiteDB[("Base de Datos Relacional<br/>(github_nodal.db WAL)")]
+        ScriptInit --> SQLiteDB
     end
+
+    subgraph ClientLaptop["💻 Laptop del Usuario (Cliente Web)"]
+        Browser["Navegador Web<br/>(Visualizador del Árbol Nodal SVG)"]
+    end
+
+    %% Flujos de Información y Protocolos
+    GitHub -- "1. HTTP GET (Scraping HTML)" --> Scraper
+    FastAPI -- "2. Persistencia SQL / Conexión BD" --> SQLiteDB
+    Browser -- "3. Peticiones HTTP / API REST JSON" --> FastAPI
 ```
 
 ---
