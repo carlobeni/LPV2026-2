@@ -16,23 +16,28 @@
 graph LR
     subgraph Entrada["1. Entrada de Datos"]
         Sensor["Sensor Físico / Cliente HTTP"]
-        Payload["Payload JSON\n{nombre, tipo, valor, umbral}"]
+        Payload["Payload JSON<br/>nombre, tipo, valor, umbral"]
     end
 
     subgraph FastAPI_Pydantic["2. Procesamiento & Validación"]
         Uvicorn["Servidor ASGI (Uvicorn)"]
         Router["FastAPI Router (/sensores)"]
-        Pydantic["Esquemas Pydantic v2\n- Coerción de Tipos\n- Validaciones de Rango\n- @field_validator"]
-        DI["Inyección de Dependencias\n(Depends: get_db)"]
+        Pydantic["Esquemas Pydantic v2<br/>- Coerción de Tipos<br/>- Validaciones de Rango<br/>- @field_validator"]
+        DI["Inyección de Dependencias<br/>Depends: get_db"]
     end
 
     subgraph Salida_Persistencia["3. Persistencia & Salida"]
-        SQLite[("SQLite WAL Mode\n(telemetria_api.db)")]
-        Doc["OpenAPI 3.1.0\nSwagger UI (/docs)"]
-        JSONResp["Respuesta JSON\nHTTP 200 / 201"]
+        SQLite[("SQLite WAL Mode<br/>telemetria_api.db")]
+        Doc["OpenAPI 3.1.0<br/>Swagger UI (/docs)"]
+        JSONResp["Respuesta JSON<br/>HTTP 200 / 201"]
     end
 
-    Sensor --> Payload --> Uvicorn --> Router --> Pydantic --> DI --> SQLite
+    Sensor --> Payload
+    Payload --> Uvicorn
+    Uvicorn --> Router
+    Router --> Pydantic
+    Pydantic --> DI
+    DI --> SQLite
     Router --> Doc
     Router --> JSONResp
 ```
@@ -87,28 +92,28 @@ En sistemas mecatrónicos modernos, como celdas de manufactura robótica, vehíc
 ```mermaid
 flowchart TD
     subgraph EdgeDevice["Borde / Planta Mecatrónica"]
-        SensorA["Sensor Térmico Motor\n(Termocupla PT100)"]
-        SensorB["Transductor de Presión\n(Prensa Hidráulica)"]
-        SensorC["Acelerómetro Triaxial\n(Vibración Brazo Robótico)"]
+        SensorA["Sensor Térmico Motor<br/>(Termocupla PT100)"]
+        SensorB["Transductor de Presión<br/>(Prensa Hidráulica)"]
+        SensorC["Acelerómetro Triaxial<br/>(Vibración Brazo Robótico)"]
     end
 
     subgraph RedLocal["Red Industrial / Ethernet"]
-        HTTPReq["Peticiones HTTP Asíncronas\nPOST /sensores/{id}/lecturas"]
+        HTTPReq["Peticiones HTTP Asíncronas<br/>POST /sensores/id/lecturas"]
     end
 
     subgraph Backend["Microservicio FastAPI (Servidor ASGI Uvicorn)"]
         Router["APIRouter (/sensores)"]
-        PydanticEngine["Motor de Validación Pydantic v2\n(Rust Core - Parsing Estricto)"]
-        Dependency["Inyección de Dependencias\n(Depends: DatabaseManager)"]
+        PydanticEngine["Motor de Validación Pydantic v2<br/>(Rust Core - Parsing Estricto)"]
+        Dependency["Inyección de Dependencias<br/>(Depends: DatabaseManager)"]
     end
 
     subgraph Storage["Persistencia Relacional"]
-        SQLiteDB[("SQLite WAL Mode\n(telemetria_api.db)")]
+        SQLiteDB[("SQLite WAL Mode<br/>telemetria_api.db")]
     end
 
     subgraph Clientes["Visualización y Consumo"]
-        Swagger["Swagger UI (/docs)\nPruebas Interactivas"]
-        Dashboard["Dashboard SCADA / Web\nTelemetría en Tiempo Real"]
+        Swagger["Swagger UI (/docs)<br/>Pruebas Interactivas"]
+        Dashboard["Dashboard SCADA / Web<br/>Telemetría en Tiempo Real"]
     end
 
     SensorA --> HTTPReq
@@ -213,15 +218,15 @@ class LecturaPresion(BaseModel):
 
 ```mermaid
 flowchart TD
-    RawJSON["Payload JSON Crudo\n{'nombre': 'Sensor A', 'valor': '45.2', 'unidad': 'bar'}"] --> Parser["Pydantic JSON Parser (Rust Core)"]
-    Parser --> Coercion["Coerción Automática de Tipos\n'45.2' (str) -> 45.2 (float)"]
-    Coercion --> FieldCheck{"Validación de Restricciones Field\nmin_length, gt=0, le=500"}
+    RawJSON["Payload JSON Crudo<br/>nombre: Sensor A, valor: 45.2, unidad: bar"] --> Parser["Pydantic JSON Parser (Rust Core)"]
+    Parser --> Coercion["Coerción Automática de Tipos<br/>'45.2' (str) -> 45.2 (float)"]
+    Coercion --> FieldCheck{"Validación de Restricciones Field<br/>min_length, gt=0, le=500"}
     
-    FieldCheck -->|Violación de Límites| ErrorResponse["HTTP 422 Unprocessable Entity\n{'loc': ['valor'], 'msg': 'Error...'}"]
-    FieldCheck -->|Pasa Restricciones| CustomVal{"@field_validator\nReglas Mecatrónicas de Negocio"}
+    FieldCheck -->|Violación de Límites| ErrorResponse["HTTP 422 Unprocessable Entity<br/>loc: valor, msg: Error"]
+    FieldCheck -->|Pasa Restricciones| CustomVal{"@field_validator<br/>Reglas Mecatrónicas de Negocio"}
     
     CustomVal -->|Valor No Válido| ErrorResponse
-    CustomVal -->|Válido| Instancia["Instancia Validada de Modelo Pydantic\nListo para Procesar en Endpoints"]
+    CustomVal -->|Válido| Instancia["Instancia Validada de Modelo Pydantic<br/>Listo para Procesar en Endpoints"]
 ```
 
 Si un cliente HTTP envía `{"valor": 12.5, "unidad": "litros"}` a un sensor de presión, FastAPI y Pydantic interceptan automáticamente la solicitud y responden con un código **HTTP 422 Unprocessable Entity** detallando con precisión el error al cliente sin que la aplicación sufra una excepción no controlada.
@@ -280,13 +285,13 @@ El siguiente diagrama de secuencia detalla el ciclo de vida de una lectura físi
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Sensor as Estación / Sensor Físico
-    participant FastAPI as Servidor FastAPI (Uvicorn)
-    participant Pydantic as Pydantic v2 Validator
-    participant DB as SQLite DB (telemetria_api.db)
-    participant Client as Dashboard / Supervisor
+    participant Sensor as "Estación / Sensor Físico"
+    participant FastAPI as "Servidor FastAPI (Uvicorn)"
+    participant Pydantic as "Pydantic v2 Validator"
+    participant DB as "SQLite DB (telemetria_api.db)"
+    participant Client as "Dashboard / Supervisor"
 
-    Sensor->>FastAPI: POST /sensores/{id}/lecturas (JSON)
+    Sensor->>FastAPI: POST /sensores/id/lecturas (JSON)
     FastAPI->>Pydantic: Validar LecturaCreate (valor, observacion)
     
     alt Error de Validación de Datos
@@ -297,14 +302,14 @@ sequenceDiagram
         FastAPI->>DB: Consultar Sensor y Umbral Alerta
         DB-->>FastAPI: Sensor Encontrado (Umbral: 80.0 °C)
         
-        Note over FastAPI: Comparar: valor (88.2) > umbral (80.0)<br/>=> alerta_activa = True
+        Note over FastAPI: Comparar: valor 88.2 superó umbral 80.0 (alerta_activa = True)
         
         FastAPI->>DB: INSERT INTO lecturas (alerta_activa=True)
         DB-->>FastAPI: Registro Creado con ID
         FastAPI-->>Sensor: HTTP 201 Created (LecturaResponse)
     end
 
-    Client->>FastAPI: GET /sensores/{id}/resumen
+    Client->>FastAPI: GET /sensores/id/resumen
     FastAPI->>DB: SELECT COUNT(*), AVG(valor), MAX(valor), SUM(alertas)
     DB-->>FastAPI: Métricas calculadas
     FastAPI-->>Client: HTTP 200 OK (ResumenSensor JSON)

@@ -8,15 +8,15 @@ Microservicio web REST desarrollado con **FastAPI** y **Pydantic v2** para la ge
 
 ```mermaid
 flowchart LR
-    Cliente["Cliente HTTP\n(Swagger / Python / Frontend)"] -->|JSON Request| FastAPI["FastAPI App\n(ASGI Server - Uvicorn)"]
+    Cliente["Cliente HTTP<br/>(Swagger / Python / Frontend)"] -->|"JSON Request"| FastAPI["FastAPI App<br/>(ASGI Server - Uvicorn)"]
     
-    FastAPI --> Validacion["Pydantic v2\n- Parsing y Coerción de Tipos\n- Validaciones con Field y Enums\n- @field_validator"]
+    FastAPI --> Validacion["Pydantic v2<br/>- Parsing y Coerción de Tipos<br/>- Validaciones con Field y Enums<br/>- @field_validator"]
     
-    Validacion -->|Datos Válidos (200/201)| Router["APIRouter (/sensores)"]
-    Validacion -->|Error de Esquema (422)| ErrorClient["HTTP 422 Unprocessable Entity"]
+    Validacion -->|"Datos Válidos (200/201)"| Router["APIRouter (/sensores)"]
+    Validacion -->|"Error de Esquema (422)"| ErrorClient["HTTP 422 Unprocessable Entity"]
     
-    Router --> Dependencia["Inyección de Dependencias\n(Depends: get_db)"]
-    Dependencia --> DB[("Base de Datos SQLite\n(telemetria_api.db)")]
+    Router --> Dependencia["Inyección de Dependencias<br/>(Depends: get_db)"]
+    Dependencia --> DB[("Base de Datos SQLite<br/>telemetria_api.db")]
 ```
 
 ### Flujo de Adquisición y Alertas de Telemetría
@@ -24,12 +24,12 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Sensor as Sensor de Planta
-    participant API as FastAPI Router (/sensores/{id}/lecturas)
-    participant Validator as Pydantic v2 (LecturaCreate)
-    participant DB as SQLite Database
+    participant Sensor as "Sensor de Planta"
+    participant API as "FastAPI Router (/sensores/id/lecturas)"
+    participant Validator as "Pydantic v2 (LecturaCreate)"
+    participant DB as "SQLite Database"
 
-    Sensor->>API: POST /sensores/{id}/lecturas {"valor": 88.5, ...}
+    Sensor->>API: POST /sensores/id/lecturas (valor: 88.5)
     API->>Validator: Validar estructura y tipo numérico
     alt Datos Inválidos
         Validator-->>API: Error de esquema
@@ -37,7 +37,7 @@ sequenceDiagram
     else Datos Válidos
         API->>DB: Consultar umbral_alerta del sensor
         DB-->>API: Umbral = 80.0 °C
-        Note over API: valor (88.5) > umbral (80.0) -> alerta_activa = True
+        Note over API: Comparar: valor 88.5 superó umbral 80.0 (alerta_activa = True)
         API->>DB: INSERT INTO lecturas (...)
         DB-->>API: Registro guardado
         API-->>Sensor: 201 Created (LecturaResponse)
