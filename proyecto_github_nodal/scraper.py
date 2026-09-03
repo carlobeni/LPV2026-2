@@ -173,6 +173,8 @@ class GitHubWebScraper:
             "Test: Add unit tests for parent-child commit tree graph builder"
         ]
 
+        branches_pool = ["main", "feature/pydantic-validation", "feature/web-scraper"]
+
         commits: List[CommitNodeCreate] = []
         hashes = [f"sha{idx:037x}" for idx in range(1, limit + 1)]
 
@@ -180,12 +182,20 @@ class GitHubWebScraper:
             curr_hash = hashes[idx]
             parent_hash = hashes[idx - 1] if idx > 0 else None
             auth_username, auth_name, avatar = random.choice(authors)
+            
+            # Asignación de ramas paralelas (main para nodos raíz, ramas de desarrollo intermedio)
+            if idx == 0 or idx == limit - 1 or idx % 3 == 0:
+                branch = "main"
+            elif idx % 2 == 0:
+                branch = "feature/pydantic-validation"
+            else:
+                branch = "feature/web-scraper"
 
             c_model = CommitNodeCreate(
                 hash=curr_hash,
                 short_hash=curr_hash[:7],
                 repo_name=repo_name,
-                branch="main",
+                branch=branch,
                 message=messages[idx % len(messages)],
                 timestamp=datetime.utcnow() - timedelta(hours=(limit - idx) * 3),
                 parent_hash=parent_hash,

@@ -117,6 +117,7 @@ class TreeNodeSchema(BaseModel):
     id: int
     hash: str
     short_hash: str
+    branch: str = "main"
     message: str
     author: AuthorResponse
     timestamp: datetime

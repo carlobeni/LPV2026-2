@@ -81,7 +81,11 @@ async def trigger_scrape_repo(payload: ScrapeTargetRequest, db: Session = Depend
         print(f"Scraping fallido ({e}). Ejecutando motor resilitente sintáctico.")
         html_content = ""
 
-    parsed_commits = scraper.parse_commits_html(html_content, full_repo, limit=payload.max_commits)
+    # Reiniciar la base de datos por completo para cada nuevo repositorio analizado
+    db.query(FileChangeORM).delete()
+    db.query(CommitNodeORM).delete()
+    db.query(AuthorORM).delete()
+    db.commit()
 
     inserted_count = 0
     for commit_data in parsed_commits:
@@ -205,6 +209,7 @@ def get_nodal_tree(db: Session = Depends(get_db)):
             "id": c.id,
             "hash": c.hash,
             "short_hash": c.short_hash,
+            "branch": c.branch,
             "message": c.message,
             "author": author_resp,
             "timestamp": c.timestamp,
