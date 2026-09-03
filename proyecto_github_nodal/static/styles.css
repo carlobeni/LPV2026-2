@@ -185,18 +185,44 @@ body {
 .kpi-number.pos { color: var(--accent-green); }
 .kpi-number.neg { color: var(--accent-red); }
 
-/* Main Grid */
+/* Main Grid - Mantener proporciones fijas en todo momento */
 .grid-main {
     display: grid;
     grid-template-columns: 2.2fr 1fr;
     gap: 1.25rem;
+    align-items: start;
+    width: 100%;
+}
+
+.grid-main > * {
+    min-width: 0; /* Previene el desbordamiento de columnas en CSS Grid */
+}
+
+.chart-panel {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-panel {
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .svg-wrapper {
     background: #090d16;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 /* SVG Chart Elements */

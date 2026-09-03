@@ -128,8 +128,14 @@ function renderTimeSeriesGraph(roots) {
     });
 
     // Configuración del espacio de la Serie Temporal
-    const marginX = 140;
-    const stepX = Math.max(130, Math.min(180, (svg.clientWidth - marginX * 2) / (allNodesList.length || 1)));
+    const wrapper = document.getElementById("svg-wrapper");
+    const containerWidth = wrapper ? wrapper.clientWidth : 750;
+
+    const marginX = 120;
+    const availableWidth = Math.max(300, containerWidth - marginX * 2);
+    const stepX = allNodesList.length > 1 
+        ? Math.max(110, availableWidth / (allNodesList.length - 1))
+        : 150;
 
     // Asignar coordenadas X, Y a cada nodo
     const nodesMapByHash = {};
@@ -144,8 +150,8 @@ function renderTimeSeriesGraph(roots) {
         };
     });
 
-    const totalWidth = Math.max(svg.clientWidth || 800, marginX * 2 + allNodesList.length * stepX);
-    const totalHeight = Math.max(480, startY + branches.length * laneHeight + 60);
+    const totalWidth = Math.max(containerWidth, marginX * 2 + (allNodesList.length - 1) * stepX + 60);
+    const totalHeight = Math.max(460, startY + branches.length * laneHeight + 50);
     svg.setAttribute("width", totalWidth);
     svg.setAttribute("height", totalHeight);
 
