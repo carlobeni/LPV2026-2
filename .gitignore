@@ -19,3 +19,8 @@ __pycache__/
 .venv/
 dist/
 build/
+
+# Bases de datos locales
+*.db
+*.db-wal
+*.db-shm
