@@ -44,26 +44,7 @@ graph LR
 
 ---
 
-## 📋 Tabla de Contenidos
 
-1. [Requisitos Previos y Configuración del Entorno](#requisitos-previos-y-configuración-del-entorno)
-2. [Fundamentos de Microservicios y Arquitectura ASGI](#1-fundamentos-de-microservicios-y-arquitectura-asgi)
-   - [1.1 Evolución Web: WSGI vs. ASGI](#11-evolución-web-wsgi-vs-asgi)
-   - [1.2 ¿Por qué FastAPI en Mecatrónica y Sistemas Ciberfísicos?](#12-por-qué-fastapi-en-mecatrónica-y-sistemas-ciberfísicos)
-3. [Modelado y Validación Estricta con Pydantic v2](#2-modelado-y-validación-estricta-con-pydantic-v2)
-   - [2.1 Tipado Estático, Parsing y Coerción](#21-tipado-estático-parsing-y-coerción)
-   - [2.2 Restricciones Físicas con `Field` y Enumeraciones](#22-restricciones-físicas-con-field-y-enumeraciones)
-   - [2.3 Validadores Personalizados con `@field_validator`](#23-validadores-personalizados-con-field_validator)
-   - [2.4 Pipeline de Validación de Pydantic v2](#24-pipeline-de-validación-de-pydantic-v2)
-4. [Diseño de Endpoints RESTful y Documentación OpenAPI](#3-diseño-de-endpoints-restful-y-documentación-openapi)
-   - [3.1 Anatomía de un Endpoint RESTful](#31-anatomía-de-un-endpoint-restful)
-   - [3.2 Inyección de Dependencias (`Depends`)](#32-inyección-de-dependencias-depends)
-   - [3.3 Flujo Secuencial de Peticiones y Alertas](#33-flujo-secuencial-de-peticiones-y-alertas)
-   - [3.4 Documentación Interactiva Automática (Swagger UI y ReDoc)](#34-documentación-interactiva-automática-swagger-ui-y-redoc)
-5. [Arquitectura del Proyecto Didáctico (`proyecto_fastapi_pydantic`)](#4-arquitectura-del-proyecto-didáctico-proyecto_fastapi_pydantic)
-6. [Guía de Ejecución y Pruebas Automatizadas](#5-guía-de-ejecución-y-pruebas-automatizadas)
-
----
 
 ## Requisitos Previos y Configuración del Entorno
 
