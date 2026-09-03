@@ -1,208 +1,390 @@
 ## Lenguaje de Programación Visual  
 ### Ingeniería Mecatrónica - FIUNA
 
-**Semana 4: APIs REST, Protocolo HTTP y Web Scraping de Alto Nivel**
+**Semana 5: Construcción de APIs Propias con FastAPI y Pydantic**
 
 ---
 
-## 1. Arquitectura de la Web: REST APIs vs. Web Scraping
+**Profesor Titular:** Ing. Jorge Luis Tillería Mereles  
+**Auxiliar de Práctica:** Univ. Carlos María Benítez Cardozo  
+**Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)**  
+**Ciclo 2026-02**
 
-La adquisición de datos remotos es una capacidad indispensable en la mecatrónica moderna, la robótica conectada y los sistemas IoT. Existen dos mecanismos principales para obtener información de servidores web: la extracción estructurada mediante **APIs REST** y la extracción desde documentos de interfaz humana mediante **Web Scraping**.
+---
+
+![FastAPI Mechatronics IoT Monitoring Dashboard](assets/fastapi_dashboard.jpg)
+
+---
+
+## 📋 Tabla de Contenidos
+
+1. [Requisitos Previos y Configuración del Entorno](#requisitos-previos-y-configuración-del-entorno)
+2. [Fundamentos de Microservicios y Arquitectura ASGI](#1-fundamentos-de-microservicios-y-arquitectura-asgi)
+   - [1.1 Evolución Web: WSGI vs. ASGI](#11-evolución-web-wsgi-vs-asgi)
+   - [1.2 ¿Por qué FastAPI en Mecatrónica y Sistemas Ciberfísicos?](#12-por-qué-fastapi-en-mecatrónica-y-sistemas-ciberfísicos)
+3. [Modelado y Validación Estricta con Pydantic v2](#2-modelado-y-validación-estricta-con-pydantic-v2)
+   - [2.1 Tipado Estático, Parsing y Coerción](#21-tipado-estático-parsing-y-coerción)
+   - [2.2 Restricciones Físicas con `Field` y Enumeraciones](#22-restricciones-físicas-con-field-y-enumeraciones)
+   - [2.3 Validadores Personalizados con `@field_validator`](#23-validadores-personalizados-con-field_validator)
+   - [2.4 Pipeline de Validación de Pydantic v2](#24-pipeline-de-validación-de-pydantic-v2)
+4. [Diseño de Endpoints RESTful y Documentación OpenAPI](#3-diseño-de-endpoints-restful-y-documentación-openapi)
+   - [3.1 Anatomía de un Endpoint RESTful](#31-anatomía-de-un-endpoint-restful)
+   - [3.2 Inyección de Dependencias (`Depends`)](#32-inyección-de-dependencias-depends)
+   - [3.3 Flujo Secuencial de Peticiones y Alertas](#33-flujo-secuencial-de-peticiones-y-alertas)
+   - [3.4 Documentación Interactiva Automática (Swagger UI y ReDoc)](#34-documentación-interactiva-automática-swagger-ui-y-redoc)
+5. [Arquitectura del Proyecto Didáctico (`proyecto_fastapi_pydantic`)](#4-arquitectura-del-proyecto-didáctico-proyecto_fastapi_pydantic)
+6. [Guía de Ejecución y Pruebas Automatizadas](#5-guía-de-ejecución-y-pruebas-automatizadas)
+
+---
+
+## Requisitos Previos y Configuración del Entorno
+
+Antes de comenzar la sesión y ejecutar el microservicio o el Jupyter Notebook, active el entorno virtual de la asignatura **`lpv2026-2`** e instale las dependencias gestionadas mediante **Poetry**:
+
+```bash
+# 1. Activar el entorno virtual de la materia
+conda activate lpv2026-2
+
+# 2. Navegar al directorio del proyecto mecatrónico
+cd proyecto_fastapi_pydantic
+
+# 3. Vincular el entorno lpv2026-2 con Poetry e instalar dependencias
+poetry env use python
+poetry install
+```
+
+> **Nota para Jupyter:** Si abre el archivo [`notebook_semana5_fastapi_pydantic.ipynb`](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/notebook_semana5_fastapi_pydantic.ipynb) en VS Code o JupyterLab, asegúrese de seleccionar el Kernel denominado **`Python (lpv2026-2)`**.
+
+---
+
+## 1. Fundamentos de Microservicios y Arquitectura ASGI
+
+En sistemas mecatrónicos modernos, como celdas de manufactura robótica, vehículos autónomos (AGV/drones) y bancos de prueba de motores, los dispositivos ya no operan de forma aislada. Se conectan mediante **APIs REST** ligeras y de alta velocidad que permiten la telemetría en tiempo real, el control remoto y la integración con aplicaciones SCADA o tableros de control.
 
 ```mermaid
 flowchart TD
-    Cliente[Cliente / Sistema Mecatrónico] --> |Petición HTTP GET/POST| Servidor[Servidor Web / Backend]
-    
-    Servidor -->|Respuesta JSON Estructurada| API["API REST (Application Programming Interface)\n- Datos limpios en JSON/XML\n- Contrato de API estable\n- Alto rendimiento y bajo payload"]
-    Servidor -->|Respuesta HTML de Interfaz| WebScrape["Web Scraping (Parsing HTML)\n- Extracción desde el DOM\n- Requiere parseo con CSS Selectors/XPath\n- Propenso a cambios de diseño UI"]
-    
-    API --> BD[(Base de Datos / SQLite)]
-    WebScrape --> BD
+    subgraph EdgeDevice["Borde / Planta Mecatrónica"]
+        SensorA["Sensor Térmico Motor\n(Termocupla PT100)"]
+        SensorB["Transductor de Presión\n(Prensa Hidráulica)"]
+        SensorC["Acelerómetro Triaxial\n(Vibración Brazo Robótico)"]
+    end
+
+    subgraph RedLocal["Red Industrial / Ethernet"]
+        HTTPReq["Peticiones HTTP Asíncronas\nPOST /sensores/{id}/lecturas"]
+    end
+
+    subgraph Backend["Microservicio FastAPI (Servidor ASGI Uvicorn)"]
+        Router["APIRouter (/sensores)"]
+        PydanticEngine["Motor de Validación Pydantic v2\n(Rust Core - Parsing Estricto)"]
+        Dependency["Inyección de Dependencias\n(Depends: DatabaseManager)"]
+    end
+
+    subgraph Storage["Persistencia Relacional"]
+        SQLiteDB[("SQLite WAL Mode\n(telemetria_api.db)")]
+    end
+
+    subgraph Clientes["Visualización y Consumo"]
+        Swagger["Swagger UI (/docs)\nPruebas Interactivas"]
+        Dashboard["Dashboard SCADA / Web\nTelemetría en Tiempo Real"]
+    end
+
+    SensorA --> HTTPReq
+    SensorB --> HTTPReq
+    SensorC --> HTTPReq
+    HTTPReq --> Router
+    Router --> PydanticEngine
+    PydanticEngine --> Dependency
+    Dependency --> SQLiteDB
+    Router -.-> Swagger
+    Router -.-> Dashboard
 ```
 
-### 1.1 Comparativa Técnica y Arquitectónica
+### 1.1 Evolución Web: WSGI vs. ASGI
 
-| Característica | APIs REST (Application Programming Interface) | Web Scraping (Parsing de Documentos HTML) |
+| Característica | WSGI (Web Server Gateway Interface) | ASGI (Asynchronous Server Gateway Interface) |
 | :--- | :--- | :--- |
-| **Estructura de Salida** | Datos estructurados estándar (**JSON**, XML, Protocol Buffers). | Texto no estructurado extraído de etiquetas **HTML/DOM**. |
-| **Estabilidad y Mantenimiento** | **Alta**. Basada en contratos de API con versionado (ej. `/api/v1/`). | **Media-Baja**. Sensible a cambios sintácticos o de diseño en el frontend. |
-| **Eficiencia de Ancho de Banda** | **Máxima**. Transporta únicamente los datos crudos requeridos. | **Menor**. Carga plantillas CSS, layouts y etiquetas HTML innecesarias. |
-| **Autenticación y Autorización** | Estandarizada mediante **API Keys**, Bearer Tokens (JWT) u OAuth2. | Manejo manual de galletas (**Cookies**), sesiones HTTP y *bypassing*. |
-| **Legalidad y Políticas de Uso** | Delimitada explícitamente por términos de uso del desarrollador. | Regulada por términos de servicio del sitio y `robots.txt`. |
-| **Librerías Python Habituales** | `httpx`, `requests`, `aiohttp`, `pydantic`. | `beautifulsoup4`, `selectolax`, `lxml`, `playwright`. |
+| **Frameworks Representativos** | Flask, Django tradicional, Bottle. | **FastAPI**, Starlette, Sanic, Django Channels. |
+| **Modelo de Ejecución** | Síncrono bloqueante (1 hilo o proceso por petición). | **Asíncrono cooperativo no bloqueante** (`asyncio`). |
+| **Servidores Web Habituales** | Gunicorn, uWSGI. | **Uvicorn**, Hypercorn, Daphne. |
+| **Rendimiento I/O** | Limitado ante ráfagas concurrentes masivas. | **Altísimo** (a la par de NodeJS y Go). |
+| **Protocolos Soportados** | Exclusivamente HTTP/1.1 síncrono. | HTTP/1.1, HTTP/2, **WebSockets**, Server-Sent Events. |
 
 ---
 
-### 1.2 Ejemplo de Consumo de API REST en Python (`httpx`)
+### 1.2 ¿Por qué FastAPI en Mecatrónica y Sistemas Ciberfísicos?
 
-Las APIs REST exponen *endpoints* HTTP que retornan objetos estructurados (generalmente JSON), los cuales se deserializan directamente a diccionarios de Python:
+1. **Rendimiento Ultrarrápido**: Desarrollado sobre Starlette y Pydantic v2 (cuyo núcleo está compilado en Rust), ofreciendo la menor latencia de procesamiento de tramas HTTP en el ecosistema Python.
+2. **Tipado Estricto de Parámetros Físicos**: Evita errores catastróficos en actuadores (por ejemplo, rechazar números negativos en velocidades de motores o unidades incompatibles).
+3. **OpenAPI Nativo**: Cualquier equipo mecatrónico o frontend visual puede consumir la API leyendo el contrato estandarizado sin necesidad de documentación manual externa.
+4. **Desacoplamiento Modular**: Facilita la separación entre la capa de red, la capa de lógica de negocio y la persistencia en base de datos.
+
+---
+
+## 2. Modelado y Validación Estricta con Pydantic v2
+
+**Pydantic** es el estándar de la industria en Python para la definición de contratos de datos. A diferencia de las clases tradicionales o diccionarios crudos, Pydantic realiza **coerción de tipos y validación en tiempo de ejecución**.
+
+### 2.1 Tipado Estático, Parsing y Coerción
 
 ```python
-import httpx
+from pydantic import BaseModel
 
-# Endpoint público de clima para estación mecatrónica
-URL_API = "https://api.open-meteo.com/v1/forecast"
-PARAMS = {
-    "latitude": -25.2637,  # Asunción, Paraguay
-    "longitude": -57.5759,
-    "current_weather": True
-}
+class ParametrosMotor(BaseModel):
+    id_motor: int
+    velocidad_rpm: float
+    activo: bool
 
-with httpx.Client(timeout=10.0) as client:
-    response = client.get(URL_API, params=PARAMS)
-    response.raise_for_status()  # Valida estado HTTP 200 OK
-    
-    data = response.json()
-    clima_actual = data["current_weather"]
-    print(f"Temperatura Actual: {clima_actual['temperature']} °C")
-    print(f"Velocidad del Viento: {clima_actual['windspeed']} km/h")
+# Pydantic realiza coerción inteligente si el valor es convertible:
+m = ParametrosMotor(id_motor="102", velocidad_rpm="1450.5", activo="true")
+print(type(m.id_motor), m.id_motor)          # <class 'int'> 102
+print(type(m.velocidad_rpm), m.velocidad_rpm) # <class 'float'> 1450.5
+print(type(m.activo), m.activo)              # <class 'bool'> True
 ```
 
 ---
 
-### 1.3 Ejemplo de Web Scraping de Alto Nivel (`BeautifulSoup4`)
+### 2.2 Restricciones Físicas con `Field` y Enumeraciones
 
-Cuando un servicio no provee una API pública REST, se consulta el documento HTML directamente y se analiza su Árbol DOM (*Document Object Model*) utilizando **Selectores CSS**:
+En ingeniería mecatrónica, las magnitudes físicas deben respetar límites mecánicos y operacionales:
 
 ```python
-import httpx
-from bs4 import BeautifulSoup
+from enum import Enum
+from pydantic import BaseModel, Field
 
-URL_WEB = "https://news.ycombinator.com/"
-HEADERS = {"User-Agent": "MecatronicaBot/1.0 (FIUNA Educational Project)"}
+class TipoSensor(str, Enum):
+    TEMPERATURA = "temperatura"
+    PRESION = "presion"
+    VIBRACION = "vibracion"
 
-with httpx.Client(headers=HEADERS, timeout=10.0) as client:
-    response = client.get(URL_WEB)
-    
-    # Parseo sintáctico del documento HTML con html.parser
-    soup = BeautifulSoup(response.text, "html.parser")
-    
-    # Extracción mediante Selectores CSS (.titleline > a)
-    titulares = soup.select(".titleline > a")
-    for idx, item in enumerate(titulares[:5], start=1):
-        print(f"{idx}. {item.get_text()} -> {item.get('href')}")
+class SensorConfig(BaseModel):
+    nombre: str = Field(..., min_length=3, max_length=50, description="Nombre de la estación")
+    tipo: TipoSensor = Field(..., description="Magnitud física censada")
+    umbral_alerta: float = Field(..., gt=0.0, le=500.0, description="Umbral físico de disparo (0 < val <= 500)")
 ```
 
 ---
 
-## 2. Manual Completo de APIs REST y Web Scraping
+### 2.3 Validadores Personalizados con `@field_validator`
 
----
+Permiten incorporar reglas de validación específicas de la lógica de control:
 
-### 2.1 Protocolo HTTP y Arquitectura REST
+```python
+from pydantic import BaseModel, field_validator
 
-El protocolo **HTTP** (*Hypertext Transfer Protocol*) opera sobre el modelo cliente-servidor mediante peticiones (*Requests*) y respuestas (*Responses*).
+class LecturaPresion(BaseModel):
+    valor: float
+    unidad: str
 
-#### Anatomía de una Petición HTTP
-Una petición contiene:
-1. **Método HTTP (Verbo):** Indica la acción requerida.
-2. **URI / URL:** Dirección del recurso.
-3. **Encabezados (Headers):** Metadatos de la transmisión (`Content-Type`, `User-Agent`, `Authorization`).
-4. **Cuerpo (Body):** Carga útil de datos (habitualmente en peticiones `POST` o `PUT`).
-
-#### Verbos HTTP Fundamentales (CRUD RESTful)
-* **`GET`**: Solicita la lectura de un recurso. No debe alterar el estado del servidor (Idempotente y Seguro).
-* **`POST`**: Envía datos al servidor para crear un nuevo recurso.
-* **`PUT`**: Reemplaza completamente un recurso existente o lo crea si no existe.
-* **`PATCH`**: Modifica parcialmente un recurso existente.
-* **`DELETE`**: Elimina un recurso específico del servidor.
-
-#### Códigos de Estado HTTP (*Status Codes*)
-
-| Rango | Clase | Ejemplos Clave | Descripción |
-| :--- | :--- | :--- | :--- |
-| **2xx** | **Éxito** | `200 OK`, `201 Created` | La petición fue recibida, entendida y procesada correctamente. |
-| **3xx** | **Redirección** | `301 Moved Permanently`, `302 Found` | El cliente debe realizar acciones adicionales para completar la petición. |
-| **4xx** | **Error del Cliente** | `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `429 Too Many Requests` | Petición mal formada, falta de autenticación, recurso inexistente o sobrepaso de límite de tasa. |
-| **5xx** | **Error del Servidor**| `500 Internal Server Error`, `502 Bad Gateway`, `503 Service Unavailable` | El servidor falló al procesar una petición válida. |
-
----
-
-### 2.2 Técnicas Avanzadas de Web Scraping
-
-#### Selectores CSS vs XPath
-
-```html
-<!-- Ejemplo DOM de Tabla de Sensores -->
-<table id="sensores-estacion">
-    <tr class="sensor-row" data-id="101">
-        <td class="nombre">Sensor Térmico A1</td>
-        <td class="lectura">24.85</td>
-    </tr>
-</table>
-```
-
-* **Selectores CSS (Recomendado por velocidad y legibilidad):**
-  * `table#sensores-estacion`: Selecciona la tabla por ID.
-  * `.sensor-row .lectura`: Selecciona la celda de lectura dentro de filas de sensores.
-* **XPath (Permite navegación bidireccional y filtrado por texto exacto):**
-  * `//table[@id='sensores-estacion']//td[contains(@class, 'lectura')]`
-
-#### Gestión de Anti-Scraping y Buenas Prácticas
-1. **User-Agent Rotation & Spoofing:** Identificar las peticiones con cabeceras realistas para evitar bloqueos por cortafuegos de capa 7.
-2. **Rate Limiting & Delays:** Introducir pausas entre peticiones (`time.sleep` o `asyncio.sleep`) para respetar la capacidad del servidor objetivo.
-3. **Manejo de Reintentos (Exponential Backoff):** Reintentar automáticamente las peticiones fallidas ante errores temporales de red o HTTP 503/429.
-4. **Reutilización de Sesiones:** Emplear `httpx.Client()` o `requests.Session()` para mantener conexiones TCP persistentes (HTTP Keep-Alive).
-
----
-
-### 2.3 Persistencia Continua en Bases de Datos Relacionales (SQLite)
-
-El patrón estándar para aplicaciones de monitoreo consiste en desacoplar el pipeline de adquisición (API REST / Scraper) de la base de datos relacional:
-
-```sql
--- Tabla relacional optimizada para almacenamiento continuo de telemetría y scraping
-CREATE TABLE IF NOT EXISTS registro_sensores (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    origen VARCHAR(50) NOT NULL,          -- 'REST_API' o 'WEB_SCRAPER'
-    parametro VARCHAR(50) NOT NULL,       -- 'temperatura', 'viento', 'presion'
-    valor REAL NOT NULL,
-    unidad VARCHAR(10) NOT NULL,
-    registrado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Índice temporal para acelerar consultas analíticas
-CREATE INDEX IF NOT EXISTS idx_registros_fecha ON registro_sensores(registrado_en);
+    @field_validator("unidad")
+    @classmethod
+    def validar_unidad_presion(cls, u: str) -> str:
+        unidades_validas = {"bar", "psi", "kPa", "MPa"}
+        if u not in unidades_validas:
+            raise ValueError(f"Unidad '{u}' no válida para presión. Opciones permitidas: {unidades_validas}")
+        return u
 ```
 
 ---
 
-## 3. Guía de Configuración de Entornos con Poetry y Jupyter
-
-**Poetry** es la herramienta moderna estándar para la gestión de dependencias y empaquetado en Python. Garantiza entornos 100% reproducibles mediante resolución determinista en `poetry.lock`.
+### 2.4 Pipeline de Validación de Pydantic v2
 
 ```mermaid
 flowchart TD
-    Init["1. poetry new proyecto / poetry init"] --> Add["2. poetry add httpx bs4 pandas jupyter"]
-    Add --> Install["3. poetry install (Crea Virtualenv)"]
-    Install --> Exec["4. poetry run python main.py"]
-    Install --> Jupyter["5. poetry run jupyter notebook"]
+    RawJSON["Payload JSON Crudo\n{'nombre': 'Sensor A', 'valor': '45.2', 'unidad': 'bar'}"] --> Parser["Pydantic JSON Parser (Rust Core)"]
+    Parser --> Coercion["Coerción Automática de Tipos\n'45.2' (str) -> 45.2 (float)"]
+    Coercion --> FieldCheck{"Validación de Restricciones Field\nmin_length, gt=0, le=500"}
+    
+    FieldCheck -->|Violación de Límites| ErrorResponse["HTTP 422 Unprocessable Entity\n{'loc': ['valor'], 'msg': 'Error...'}"]
+    FieldCheck -->|Pasa Restricciones| CustomVal{"@field_validator\nReglas Mecatrónicas de Negocio"}
+    
+    CustomVal -->|Valor No Válido| ErrorResponse
+    CustomVal -->|Válido| Instancia["Instancia Validada de Modelo Pydantic\nListo para Procesar en Endpoints"]
 ```
 
-### Comandos Esenciales de Poetry
-* **Inicializar proyecto:** `poetry init`
-* **Instalar dependencias:** `poetry add httpx beautifulsoup4 pandas jupyter`
-* **Instalar dependencias de desarrollo:** `poetry add pytest --group dev`
-* **Sincronizar el entorno:** `poetry install`
-* **Ejecutar comandos en el entorno:** `poetry run python <script.py>`
-* **Iniciar sesión interactiva:** `poetry shell`
+Si un cliente HTTP envía `{"valor": 12.5, "unidad": "litros"}` a un sensor de presión, FastAPI y Pydantic interceptan automáticamente la solicitud y responden con un código **HTTP 422 Unprocessable Entity** detallando con precisión el error al cliente sin que la aplicación sufra una excepción no controlada.
 
 ---
 
-## 4. Ejemplos y Proyectos del Repositorio
-
-En este repositorio se proveen proyectos prácticos de referencia modularizados para la asignatura:
-
-### [Proyecto 1: Concurrencia y Persistencia Temporal (Asyncio + SQLite)](proyecto_sqlite_asyncio/README.md)
-* **Descripción:** Adquisición masiva concurrente de sensores simulados I/O Bound mediante corrutinas de `asyncio`, desacoplamiento mediante colas asíncronas (`asyncio.Queue`) y almacenamiento transaccional continuo en SQLite con transmisión WAL.
+## 3. Diseño de Endpoints RESTful y Documentación OpenAPI
 
 ---
 
-### [Proyecto 2: Visualizador GUI e Integración Cloud (PyQt6 + Supabase)](proyectoPyQT6_supabase/README.md)
-* **Descripción:** Aplicación gráfica de escritorio desarrollada en **PyQt6** conectada al Backend-as-a-Service **Supabase** (PostgreSQL). Visualización e inspección interactiva de datos astronómicos y manchas solares (NOAA Zurich-McIntosh).
+### 3.1 Anatomía de un Endpoint RESTful
+
+Una API RESTful modela los recursos mediante sustantivos en plural (`/sensores`, `/lecturas`) y utiliza los verbos del protocolo HTTP para definir las operaciones:
+
+```python
+from fastapi import APIRouter, HTTPException, status
+from src.models import SensorCreate, SensorResponse
+
+router = APIRouter(prefix="/sensores")
+
+@router.post("", response_model=SensorResponse, status_code=status.HTTP_201_CREATED)
+def registrar_sensor(sensor_in: SensorCreate):
+    # Lógica de guardado en base de datos
+    return sensor_creado
+```
+
+#### Convención de Códigos de Estado HTTP en REST:
+* **`200 OK`**: Petición de lectura o actualización procesada con éxito.
+* **`201 Created`**: Nuevo recurso creado exitosamente en el servidor.
+* **`204 No Content`**: Eliminación exitosa sin cuerpo de respuesta.
+* **`400 Bad Request`**: Solicitud con parámetros semánticamente incorrectos.
+* **`404 Not Found`**: El identificador solicitado no existe en la base de datos.
+* **`422 Unprocessable Entity`**: Error de validación de esquema Pydantic (tipos, límites o campos ausentes).
 
 ---
 
-### [Proyecto 3: Adquisición Continua y Análisis (REST API + Web Scraping + SQLite)](proyecto_rest_scraping/README.md)
-* **Descripción:** Sistema autónomo desacoplado que consulta periódicamente APIs REST meteorológicas y extrae datos estructurados mediante Web Scraping HTML, persistiendo los registros en tiempo real dentro de una base de datos relacional **SQLite**, complementado con un **Jupyter Notebook** de análisis de datos interactivo y gestionado completamente con **Poetry**.
-* **Documentación completa:** 📖 [Ver README de REST API + Web Scraping](proyecto_rest_scraping/README.md)
+### 3.2 Inyección de Dependencias (`Depends`)
+
+FastAPI implementa un potente sistema de **Inyección de Dependencias** (`Depends`) que permite compartir recursos compartidos como conexiones de base de datos, sesiones o autorizaciones:
+
+```python
+from fastapi import Depends
+from src.database import DatabaseManager, get_db
+
+@router.get("")
+def listar_sensores(db: DatabaseManager = Depends(get_db)):
+    return db.obtener_sensores()
+```
+
+---
+
+### 3.3 Flujo Secuencial de Peticiones y Alertas
+
+El siguiente diagrama de secuencia detalla el ciclo de vida de una lectura física de sensor transmitida a la API:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Sensor as Estación / Sensor Físico
+    participant FastAPI as Servidor FastAPI (Uvicorn)
+    participant Pydantic as Pydantic v2 Validator
+    participant DB as SQLite DB (telemetria_api.db)
+    participant Client as Dashboard / Supervisor
+
+    Sensor->>FastAPI: POST /sensores/{id}/lecturas (JSON)
+    FastAPI->>Pydantic: Validar LecturaCreate (valor, observacion)
+    
+    alt Error de Validación de Datos
+        Pydantic-->>FastAPI: ValidationError (Tipo o límite inválido)
+        FastAPI-->>Sensor: HTTP 422 Unprocessable Entity
+    else Validación Exitosa
+        Pydantic-->>FastAPI: Objeto LecturaCreate Válido
+        FastAPI->>DB: Consultar Sensor y Umbral Alerta
+        DB-->>FastAPI: Sensor Encontrado (Umbral: 80.0 °C)
+        
+        Note over FastAPI: Comparar: valor (88.2) > umbral (80.0)<br/>=> alerta_activa = True
+        
+        FastAPI->>DB: INSERT INTO lecturas (alerta_activa=True)
+        DB-->>FastAPI: Registro Creado con ID
+        FastAPI-->>Sensor: HTTP 201 Created (LecturaResponse)
+    end
+
+    Client->>FastAPI: GET /sensores/{id}/resumen
+    FastAPI->>DB: SELECT COUNT(*), AVG(valor), MAX(valor), SUM(alertas)
+    DB-->>FastAPI: Métricas calculadas
+    FastAPI-->>Client: HTTP 200 OK (ResumenSensor JSON)
+```
+
+---
+
+### 3.4 Documentación Interactiva Automática (Swagger UI y ReDoc)
+
+Al iniciar el servidor ASGI Uvicorn, FastAPI genera automáticamente la especificación **OpenAPI 3.1.0** y expone dos interfaces gráficas interactivas:
+
+* 🌐 **Swagger UI (`http://127.0.0.1:8000/docs`):** Permite ejecutar peticiones `GET`, `POST`, `DELETE` interactivamente desde el navegador (*Try it out*).
+* 📖 **ReDoc (`http://127.0.0.1:8000/redoc`):** Vista de documentación técnica con esquemas detallados de request y response.
+
+---
+
+## 4. Arquitectura del Proyecto Didáctico (`proyecto_fastapi_pydantic`)
+
+El repositorio cuenta con una implementación completa y desacoplada de una **API de Monitoreo Mecatrónico**:
+
+```
+d:\Materiales de Auxiliar\1. Lenguaje de Programacion Visual\
+├── README.md                                  # Documentación principal de la materia
+├── Plan de clases 2026-02.pdf
+├── Manual de SQL.pdf
+├── assets/
+│   └── fastapi_dashboard.jpg                  # Infografía de telemetría y Swagger UI
+└── proyecto_fastapi_pydantic/                 # Microservicio FastAPI con Pydantic v2
+    ├── README.md                              # Documentación técnica del microservicio
+    ├── pyproject.toml                         # Configuración y dependencias con Poetry
+    ├── main.py                                # Servidor ASGI Uvicorn
+    ├── notebook_semana5_fastapi_pydantic.ipynb# Notebook interactivo de pruebas con TestClient
+    ├── src/
+    │   ├── __init__.py
+    │   ├── app.py                             # Fábrica de aplicación FastAPI y CORS
+    │   ├── config.py                          # Parámetros y metadatos de la API
+    │   ├── models.py                          # Modelos Pydantic v2 (Request, Response, Validadores)
+    │   ├── database.py                        # Persistencia SQLite desacoplada
+    │   └── routes.py                          # Enrutador APIRouter con endpoints REST
+    ├── tests/
+    │   ├── __init__.py
+    │   └── test_api.py                        # Pruebas unitarias automatizadas con TestClient
+    └── data/
+        └── .gitkeep                           # Directorio para base de datos SQLite
+```
+
+### Enlaces Directos a los Archivos del Proyecto:
+- 🚀 **Servidor ASGI:** [proyecto_fastapi_pydantic/main.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/main.py)
+- ⚙️ **Configuración Poetry:** [proyecto_fastapi_pydantic/pyproject.toml](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/pyproject.toml)
+- 📋 **Esquemas Pydantic:** [proyecto_fastapi_pydantic/src/models.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/src/models.py)
+- 📡 **Endpoints REST:** [proyecto_fastapi_pydantic/src/routes.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/src/routes.py)
+- 💾 **Persistencia SQLite:** [proyecto_fastapi_pydantic/src/database.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/src/database.py)
+- 🧪 **Pruebas Automatizadas:** [proyecto_fastapi_pydantic/tests/test_api.py](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/tests/test_api.py)
+- 📓 **Jupyter Notebook Interactivo:** [proyecto_fastapi_pydantic/notebook_semana5_fastapi_pydantic.ipynb](file:///d:/Materiales%20de%20Auxiliar/1.%20Lenguaje%20de%20Programacion%20Visual/proyecto_fastapi_pydantic/notebook_semana5_fastapi_pydantic.ipynb)
+
+---
+
+## 5. Guía de Ejecución y Pruebas Automatizadas
+
+### 1. Iniciar el Microservicio con Uvicorn
+Con el entorno `lpv2026-2` activo:
+
+```bash
+cd proyecto_fastapi_pydantic
+poetry run python main.py
+```
+
+Acceda a Swagger UI en su navegador web:
+👉 **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**
+
+---
+
+### 2. Ejecutar la Suite de Pruebas Automatizadas
+Verifique el correcto funcionamiento de los endpoints, las restricciones de validación y la persistencia SQLite:
+
+```bash
+cd proyecto_fastapi_pydantic
+poetry run pytest tests/
+```
+
+#### Salida esperada en consola:
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\Materiales de Auxiliar\1. Lenguaje de Programacion Visual\proyecto_fastapi_pydantic
+configfile: pyproject.toml
+plugins: anyio-4.15.0, asyncio-1.4.0
+collected 6 items
+
+tests\test_api.py ......                                                 [100%]
+
+============================== 6 passed in 0.95s ==============================
+```
+
+---
+
+### 3. Ejecución del Notebook Interactivo
+Para una experiencia práctica celda por celda utilizando `TestClient` en memoria:
+
+```bash
+cd proyecto_fastapi_pydantic
+poetry run jupyter notebook notebook_semana5_fastapi_pydantic.ipynb
+```
+
+---
+*Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)*
