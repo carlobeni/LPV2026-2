@@ -41,6 +41,19 @@ flowchart TD
     Browser -- "3. REST API / JSON (/api/nodal-tree)" --> FastAPI
 ```
 
+> [!IMPORTANT]
+> **Observación Técnica: Definición y Función del Orquestador en el Servidor**
+> 
+> Un **Orquestador** (o *Workflow Orchestrator*) en arquitecturas web es el componente encargado de coordinar, secuenciar y gestionar el ciclo de vida de múltiples tareas dependientes o asíncronas.
+> 
+> **¿Dónde está alojado el Orquestador?**  
+> El Orquestador **está alojado y se ejecuta dentro del Servidor de Aplicación** (`AppServer`, junto con el servicio **FastAPI**).
+> 
+> **Responsabilidades del Orquestador en el Servidor:**
+> 1. **Coordinación del Flujo de Datos:** Recibe la petición desde la Laptop del Usuario (`POST /api/scrape`), delega al cliente HTTP (`scraper.py`) la extracción del HTML de GitHub, transfiere los datos crudos a **Pydantic v2** (`schemas.py`) para su validación estricta y activa la persistencia en la Base de Datos (`database.py`).
+> 2. **Resiliencia y Manejo de Errores:** Si GitHub aplica bloqueos de red o tiempos de espera, el Orquestador en el servidor ejecuta las estrategias de reintento, rotación de cabeceras o motores sintácticos de resiliencia sin interrumpir al cliente.
+> 3. **Desacoplamiento:** Aísla la complejidad del scraping y la gestión de la base de datos de la interfaz web del usuario.
+
 ---
 
 ## Estructura del Repositorio
