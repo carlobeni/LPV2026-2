@@ -14,6 +14,25 @@ Este proyecto combina los contenidos de las **Semanas 4 y 5** en un único desar
 
 ---
 
+```mermaid
+flowchart LR
+    subgraph Scraping["1. Extracción & Validación"]
+        GitHub["GitHub Repo<br/>(Commits Web)"] --> Scraper["Web Scraper<br/>(HTTPX + BS4)"]
+        Scraper --> Pydantic["Pydantic v2<br/>(Validación de Tipos)"]
+    end
+
+    subgraph Backend["2. Persistencia & API REST"]
+        Pydantic --> DB[("SQLite DB<br/>(github_nodal.db)")]
+        DB --> FastAPI["FastAPI Server<br/>(Endpoints REST)"]
+    end
+
+    subgraph Frontend["3. Visualización"]
+        FastAPI --> Visualizer["Visualizador Web<br/>(Árbol Nodal SVG)"]
+    end
+```
+
+---
+
 ## Estructura del Repositorio
 
 ```

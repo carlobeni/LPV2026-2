@@ -13,48 +13,20 @@
 ---
 
 ```mermaid
-graph TD
-    subgraph GitHub_Web["1. Origen de Datos (GitHub Web)"]
-        GitHubRepo["Repositorio Público GitHub<br/>https://github.com/usuario/repo/commits"]
+flowchart LR
+    subgraph Scraping["1. Extracción & Validación"]
+        GitHub["GitHub Repo<br/>(Commits Web)"] --> Scraper["Web Scraper<br/>(HTTPX + BS4)"]
+        Scraper --> Pydantic["Pydantic v2<br/>(Validación de Tipos)"]
     end
 
-    subgraph Scraping_Engine["2. Motor de Scraping & Resiliencia"]
-        HTTPXClient["Cliente HTTP Asíncrono (HTTPX)<br/>- Rotación User-Agent<br/>- Cabeceras HTTP Reales"]
-        BS4Parser["Parseo DOM HTML (BeautifulSoup4)<br/>- Selectores CSS (lxml)<br/>- Extracción de Hash, Autor y Diff Stats"]
-        ScraperAPIProxy["Proxy Optional (ScraperAPI Integration)<br/>Bypass de Rate Limits & CAPTCHAs"]
+    subgraph Backend["2. Persistencia & API REST"]
+        Pydantic --> DB[("SQLite DB<br/>(github_nodal.db)")]
+        DB --> FastAPI["FastAPI Server<br/>(Endpoints REST)"]
     end
 
-    subgraph Validation_Tier["3. Capa de Validación (Pydantic v2)"]
-        PydanticSchemas["Esquemas Pydantic v2<br/>- Coerción Estricta de Tipos<br/>- Validaciones @field_validator<br/>- Generación Abreviada de Hash"]
+    subgraph Frontend["3. Visualización"]
+        FastAPI --> Visualizer["Visualizador Web<br/>(Árbol Nodal SVG)"]
     end
-
-    subgraph Database_Server["4. Servidor de Base de Datos Desacoplado"]
-        DBEngine[("SQLite WAL Mode Engine<br/>github_nodal.db")]
-        ScriptInit["Script Independiente BD<br/>python init_db.py"]
-    end
-
-    subgraph REST_API["5. Servicio Web REST (FastAPI)"]
-        UvicornServer["Servidor Uvicorn ASGI"]
-        PostScrape["POST /api/scrape<br/>Trata URL y ejecuta Scraping"]
-        GetCommits["GET /api/commits<br/>Listado plano de cambios"]
-        GetTree["GET /api/nodal-tree<br/>Reconstrucción Jerárquica del Árbol Nodal"]
-    end
-
-    subgraph Web_Visualizer["6. Visualizador Web Interactivo"]
-        SVGGraph["Grafo Nodal SVG (D3/Canvas)<br/>- Nodos coloreados por autor<br/>- Conexiones Padre-Hijo (Commits)<br/>- Panel de Detalle y Métricas KPI"]
-        SwaggerDocs["Swagger UI (/docs)<br/>OpenAPI 3.1"]
-    end
-
-    GitHubRepo --> HTTPXClient
-    HTTPXClient --> BS4Parser
-    HTTPXClient -. Optional .-> ScraperAPIProxy
-    BS4Parser --> PydanticSchemas
-    PydanticSchemas --> DBEngine
-    ScriptInit --> DBEngine
-    DBEngine --> REST_API
-    UvicornServer --> REST_API
-    REST_API --> SVGGraph
-    REST_API --> SwaggerDocs
 ```
 
 ---
