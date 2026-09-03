@@ -5,46 +5,6 @@
 
 ---
 
-**Profesor Titular:** Ing. Jorge Luis Tillería Mereles  
-**Auxiliar de Práctica:** Univ. Carlos María Benítez Cardozo  
-**Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)**  
-**Ciclo 2026-02**
-
----
-
-```mermaid
-flowchart TD
-    subgraph Cloud["🌐 Nube de GitHub (Servidor Externo)"]
-        GitHub["GitHub Repo<br/>(Páginas de Commits HTML)"]
-    end
-
-    subgraph AppServer["🖥️ Servidor de Aplicación (Host de la API)"]
-        Scraper["Motor Web Scraper<br/>(HTTPX + BS4)"]
-        Pydantic["Validación Pydantic v2"]
-        FastAPI["Servicio Web FastAPI<br/>(Endpoints REST & JSON)"]
-        
-        Scraper --> Pydantic
-        Pydantic --> FastAPI
-    end
-
-    subgraph DBDevice["🗄️ Dispositivo Independiente de BD (Servidor BD)"]
-        ScriptInit["Script Independiente<br/>(init_db.py)"]
-        SQLiteDB[("Base de Datos Relacional<br/>(github_nodal.db WAL)")]
-        ScriptInit --> SQLiteDB
-    end
-
-    subgraph ClientLaptop["💻 Laptop del Usuario (Cliente Web)"]
-        Browser["Navegador Web<br/>(Visualizador del Árbol Nodal SVG)"]
-    end
-
-    %% Flujos de Información y Protocolos
-    GitHub -- "1. HTTP GET (Scraping HTML)" --> Scraper
-    FastAPI -- "2. Persistencia SQL / Conexión BD" --> SQLiteDB
-    Browser -- "3. Peticiones HTTP / API REST JSON" --> FastAPI
-```
-
----
-
 ## Requisitos Previos y Configuración del Entorno
 
 Antes de ejecutar el servidor, el script de base de datos o el notebook de Jupyter, active el entorno virtual de la materia **`lpv2026-2`** e instale las dependencias gestionadas con **Poetry**:
@@ -132,7 +92,42 @@ print(commit_valido.additions) # 250 (int)
 
 ## PARTE 2: Planteamiento del Problema: Registro y Árbol Nodal de Cambios en Repositorios de GitHub
 
-### 2.1 Formulación del Problema de Ingeniería
+### 2.1 Topología de Despliegue y Arquitectura del Sistema
+
+```mermaid
+flowchart TD
+    subgraph Cloud["🌐 Nube de GitHub (Servidor Externo)"]
+        GitHub["GitHub Repo<br/>(https://github.com/owner/repo)"]
+    end
+
+    subgraph AppServer["🖥️ Servidor de Aplicación (Host FastAPI)"]
+        Scraper["scraper.py<br/>(GitHubWebScraper: HTTPX + BS4)"]
+        Pydantic["schemas.py<br/>(Pydantic v2: CommitNodeCreate)"]
+        FastAPI["main.py<br/>(FastAPI: POST /api/scrape, GET /api/nodal-tree)"]
+        
+        Scraper --> Pydantic
+        Pydantic --> FastAPI
+    end
+
+    subgraph DBDevice["🗄️ Dispositivo Independiente de BD (Servidor BD)"]
+        ScriptInit["init_db.py<br/>(Script Independiente de Inicialización)"]
+        SQLiteDB[("database.py<br/>(SQLite WAL: github_nodal.db)")]
+        ScriptInit --> SQLiteDB
+    end
+
+    subgraph ClientLaptop["💻 Laptop del Usuario (Cliente Web)"]
+        Browser["Navegador Web (Laptop)<br/>(static/index.html & app.js - Grafo SVG)"]
+    end
+
+    %% Flujos de Información y Protocolos Reales
+    GitHub -- "1. HTTP GET (HTML de Commits)" --> Scraper
+    FastAPI -- "2. Persistencia SQL (SQLAlchemy ORM)" --> SQLiteDB
+    Browser -- "3. REST API / JSON (/api/nodal-tree)" --> FastAPI
+```
+
+---
+
+### 2.2 Formulación del Problema de Ingeniería
 
 En grandes proyectos mecatrónicos y de software (como repositorios de control de vuelo, microsoftware de vehículos autónomos o marcos de trabajo como *FastAPI*), múltiples desarrolladores efectúan cientos de cambios diarios.
 

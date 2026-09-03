@@ -1,11 +1,5 @@
 # Guía del Proyecto: Web Scraping de Repositorios GitHub, Pydantic v2, FastAPI y Visualización del Árbol Nodal de Cambios
 
-**Asignatura:** Lenguaje de Programación Visual  
-**Facultad de Ingeniería - Universidad Nacional de Asunción (FIUNA)**  
-**Ciclo:** 2026-02  
-**Profesor Titular:** Ing. Jorge Luis Tillería Mereles  
-**Auxiliar de Práctica:** Univ. Carlos María Benítez Cardozo  
-
 ---
 
 ## Resumen del Proyecto
@@ -14,35 +8,37 @@ Este proyecto combina los contenidos de las **Semanas 4 y 5** en un único desar
 
 ---
 
+## Topología de Despliegue y Arquitectura del Sistema
+
 ```mermaid
 flowchart TD
     subgraph Cloud["🌐 Nube de GitHub (Servidor Externo)"]
-        GitHub["GitHub Repo<br/>(Páginas de Commits HTML)"]
+        GitHub["GitHub Repo<br/>(https://github.com/owner/repo)"]
     end
 
-    subgraph AppServer["🖥️ Servidor de Aplicación (Host de la API)"]
-        Scraper["Motor Web Scraper<br/>(HTTPX + BS4)"]
-        Pydantic["Validación Pydantic v2"]
-        FastAPI["Servicio Web FastAPI<br/>(Endpoints REST & JSON)"]
+    subgraph AppServer["🖥️ Servidor de Aplicación (Host FastAPI)"]
+        Scraper["scraper.py<br/>(GitHubWebScraper: HTTPX + BS4)"]
+        Pydantic["schemas.py<br/>(Pydantic v2: CommitNodeCreate)"]
+        FastAPI["main.py<br/>(FastAPI: POST /api/scrape, GET /api/nodal-tree)"]
         
         Scraper --> Pydantic
         Pydantic --> FastAPI
     end
 
     subgraph DBDevice["🗄️ Dispositivo Independiente de BD (Servidor BD)"]
-        ScriptInit["Script Independiente<br/>(init_db.py)"]
-        SQLiteDB[("Base de Datos Relacional<br/>(github_nodal.db WAL)")]
+        ScriptInit["init_db.py<br/>(Script Independiente de Inicialización)"]
+        SQLiteDB[("database.py<br/>(SQLite WAL: github_nodal.db)")]
         ScriptInit --> SQLiteDB
     end
 
     subgraph ClientLaptop["💻 Laptop del Usuario (Cliente Web)"]
-        Browser["Navegador Web<br/>(Visualizador del Árbol Nodal SVG)"]
+        Browser["Navegador Web (Laptop)<br/>(static/index.html & app.js - Grafo SVG)"]
     end
 
-    %% Flujos de Información y Protocolos
-    GitHub -- "1. HTTP GET (Scraping HTML)" --> Scraper
-    FastAPI -- "2. Persistencia SQL / Conexión BD" --> SQLiteDB
-    Browser -- "3. Peticiones HTTP / API REST JSON" --> FastAPI
+    %% Flujos de Información y Protocolos Reales
+    GitHub -- "1. HTTP GET (HTML de Commits)" --> Scraper
+    FastAPI -- "2. Persistencia SQL (SQLAlchemy ORM)" --> SQLiteDB
+    Browser -- "3. REST API / JSON (/api/nodal-tree)" --> FastAPI
 ```
 
 ---
