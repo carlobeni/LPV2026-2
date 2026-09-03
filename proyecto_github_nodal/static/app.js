@@ -89,10 +89,15 @@ async function handleScrapeSubmit(event) {
  */
 function renderTimeSeriesGraph(roots) {
     const svg = document.getElementById("timeline-svg");
+    if (!svg) return;
     svg.innerHTML = "";
+    const detailPanel = document.getElementById("commit-detail-content");
 
     if (!roots || roots.length === 0) {
-        svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#94a3b8" font-size="13">No existen commits cargados en la Base de Datos. Ingresa una URL y ejecuta el análisis.</text>`;
+        svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#94a3b8" font-size="13">No hay ningún repositorio cargado. Ingrese una URL arriba y presione 'Analizar & Cargar Repositorio'.</text>`;
+        if (detailPanel) {
+            detailPanel.innerHTML = `<p class="placeholder-text">Ingresa una URL de GitHub arriba y ejecuta el análisis para visualizar el grafo nodal de cambios.</p>`;
+        }
         return;
     }
 

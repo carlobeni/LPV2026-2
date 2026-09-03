@@ -158,4 +158,11 @@ def populate_seed_data():
 if __name__ == "__main__":
     print("--- Inicializador Independiente de Servidor de Base de Datos ---")
     init_db()
-    populate_seed_data()
+    # Para iniciar con la base de datos totalmente vacía al abrir la página:
+    db = SessionLocal()
+    db.query(FileChangeORM).delete()
+    db.query(CommitNodeORM).delete()
+    db.query(AuthorORM).delete()
+    db.commit()
+    db.close()
+    print("Base de datos reiniciada y lista para recibir repositorios.")

@@ -118,7 +118,20 @@ class GitHubWebScraper:
                 parent_h = previous_hash
                 previous_hash = raw_hash
 
-                # 5. Diff Stats
+                # 5. Detección Dinámica de Ramas (Branch Tag / Scope Matching)
+                branch = "main"
+                # Buscar scope entre paréntesis o etiquetas (ej. feat(semana-4-y-5), semana-1, init-project)
+                branch_match = re.search(r'\((semana-[0-9a-zA-Z\-]+|init-project|main|master|feature/[^\)]+)\)', message, re.IGNORECASE)
+                if branch_match:
+                    branch = branch_match.group(1).lower()
+                else:
+                    # Buscar coincidencia directa de palabras clave de ramas
+                    for known_b in ["semana-4-y-5", "semana-3", "semana-2", "semana-1", "init-project"]:
+                        if known_b in message.lower():
+                            branch = known_b
+                            break
+
+                # 6. Diff Stats
                 additions = random.randint(10, 150)
                 deletions = random.randint(2, 40)
 
@@ -127,7 +140,7 @@ class GitHubWebScraper:
                     hash=raw_hash,
                     short_hash=raw_hash[:7],
                     repo_name=repo_name,
-                    branch="main",
+                    branch=branch,
                     message=message,
                     timestamp=datetime.utcnow() - timedelta(hours=idx * 4),
                     parent_hash=parent_h,
