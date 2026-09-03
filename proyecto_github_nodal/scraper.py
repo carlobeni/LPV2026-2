@@ -78,7 +78,7 @@ class GitHubWebScraper:
         """
         Analiza el DOM HTML usando BeautifulSoup4 y extrae los nodos de commits con validación Pydantic.
         """
-        soup = BeautifulSoup(html_content, "lxml")
+        soup = BeautifulSoup(html_content, "html.parser")
         scraped_commits: List[CommitNodeCreate] = []
 
         # En GitHub, los elementos de commits suelen estar agrupados en <li> o <div data-testid="commit-row">
