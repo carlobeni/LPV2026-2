@@ -259,46 +259,7 @@ def listar_sensores(db: DatabaseManager = Depends(get_db)):
 
 ---
 
-### 3.3 Flujo Secuencial de Peticiones y Alertas
-
-El siguiente diagrama de secuencia detalla el ciclo de vida de una lectura física de sensor transmitida a la API:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Sensor as "Estación / Sensor Físico"
-    participant FastAPI as "Servidor FastAPI (Uvicorn)"
-    participant Pydantic as "Pydantic v2 Validator"
-    participant DB as "SQLite DB (telemetria_api.db)"
-    participant Client as "Dashboard / Supervisor"
-
-    Sensor->>FastAPI: POST /sensores/id/lecturas (JSON)
-    FastAPI->>Pydantic: Validar LecturaCreate (valor, observacion)
-    
-    alt Error de Validación de Datos
-        Pydantic-->>FastAPI: ValidationError (Tipo o límite inválido)
-        FastAPI-->>Sensor: HTTP 422 Unprocessable Entity
-    else Validación Exitosa
-        Pydantic-->>FastAPI: Objeto LecturaCreate Válido
-        FastAPI->>DB: Consultar Sensor y Umbral Alerta
-        DB-->>FastAPI: Sensor Encontrado (Umbral: 80.0 °C)
-        
-        Note over FastAPI: Comparar: valor 88.2 superó umbral 80.0 (alerta_activa = True)
-        
-        FastAPI->>DB: INSERT INTO lecturas (alerta_activa=True)
-        DB-->>FastAPI: Registro Creado con ID
-        FastAPI-->>Sensor: HTTP 201 Created (LecturaResponse)
-    end
-
-    Client->>FastAPI: GET /sensores/id/resumen
-    FastAPI->>DB: SELECT COUNT(*), AVG(valor), MAX(valor), SUM(alertas)
-    DB-->>FastAPI: Métricas calculadas
-    FastAPI-->>Client: HTTP 200 OK (ResumenSensor JSON)
-```
-
----
-
-### 3.4 Documentación Interactiva Automática (Swagger UI y ReDoc)
+### 3.3 Documentación Interactiva Automática (Swagger UI y ReDoc)
 
 Al iniciar el servidor ASGI Uvicorn, FastAPI genera automáticamente la especificación **OpenAPI 3.1.0** y expone dos interfaces gráficas interactivas:
 
