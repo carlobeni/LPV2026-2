@@ -1,6 +1,8 @@
 ## Lenguaje de Programación Visual  
 ### Ingeniería Mecatrónica - FIUNA
 
+> 📌 **Semana 6:** [Guía Didáctica de Svelte 5](./semana-6/README.md) — Componentes, Reactividad, Props, Lógica, Eventos, Bindings, Estilos y Transiciones.
+
 **Semana 4 y 5: Validación de Datos con Pydantic v2, Web Scraping con BeautifulSoup4/HTTPX y FastAPI: Registro y Árbol Nodal de Cambios en Repositorios GitHub**
 
 ---
