@@ -1,10 +1,10 @@
 # Sección 01 — Tu Primer Componente y Atributos Dinámicos
 
-> 📖 Referencia: [svelte.dev/tutorial/svelte/your-first-component](https://svelte.dev/tutorial/svelte/your-first-component)
+> Referencia: [svelte.dev/tutorial/svelte/your-first-component](https://svelte.dev/tutorial/svelte/your-first-component)
 
 ---
 
-## 1.1 ¿Qué es un Componente en Svelte?
+## 1.1 Qué es un Componente en Svelte
 
 Un **componente** es la unidad básica de construcción en Svelte. Es un archivo con extensión `.svelte` que combina:
 
@@ -15,10 +15,10 @@ Un **componente** es la unidad básica de construcción en Svelte. Es un archivo
 Piensa en un componente como un **bloque reutilizable** de interfaz, similar a una pieza de LEGO.
 
 ```
-App.svelte         ← Componente raíz
-├── Header.svelte  ← Componente hijo
-├── Card.svelte    ← Componente reutilizable
-└── Footer.svelte  ← Componente hijo
+App.svelte         <- Componente raíz
+├── Header.svelte  <- Componente hijo
+├── Card.svelte    <- Componente reutilizable
+└── Footer.svelte  <- Componente hijo
 ```
 
 ---
@@ -51,7 +51,7 @@ Para mostrar valores dinámicos en el HTML, usamos llaves `{}`:
 <p>El doble del año es: {año * 2}</p>
 ```
 
-> 💡 Dentro de `{}` puedes poner **cualquier expresión JavaScript** válida.
+> Dentro de `{}` puedes poner **cualquier expresión JavaScript** válida.
 
 ---
 
@@ -112,7 +112,7 @@ Puedes importar y usar otros componentes como si fueran etiquetas HTML:
 </div>
 ```
 
-> ⚠️ Los componentes siempre empiezan con **mayúscula** (`<Avatar />`) para distinguirlos de los elementos HTML nativos.
+> Los componentes siempre empiezan con **mayúscula** (`<Avatar />`) para distinguirlos de los elementos HTML nativos.
 
 ---
 
@@ -128,11 +128,11 @@ Para renderizar HTML crudo (con precaución):
 <p>{@html contenido}</p>
 ```
 
-> ⚠️ **Advertencia de seguridad:** Solo usa `{@html}` con contenido de confianza. Nunca con datos del usuario (riesgo de XSS).
+> **Advertencia de seguridad:** Solo usa `{@html}` con contenido de confianza. Nunca con datos del usuario (riesgo de XSS).
 
 ---
 
-## 🧪 Mini Página: Tarjeta de Perfil
+## Mini Página: Tarjeta de Perfil
 
 Este ejemplo combina todos los conceptos anteriores en una tarjeta de perfil interactiva.
 
@@ -151,7 +151,7 @@ npm run dev
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
 1. **Fácil:** Cambia el nombre y la descripción en `TarjetaPerfil.svelte` con tus propios datos.
 2. **Medio:** Agrega una propiedad `hobbies` como lista de strings y muéstralos en la tarjeta.
@@ -159,4 +159,4 @@ npm run dev
 
 ---
 
-*← [README principal](../README.md) · [Sección 02: Reactividad →](../02-reactividad/)*
+*<- [README principal](../README.md) · [Sección 02: Reactividad ->](../02-reactividad/)*

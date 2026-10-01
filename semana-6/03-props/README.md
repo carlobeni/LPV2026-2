@@ -1,23 +1,23 @@
 # Sección 03 — Props: Comunicación entre Componentes
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/declaring-props](https://svelte.dev/tutorial/svelte/declaring-props)
 > - [svelte.dev/tutorial/svelte/default-values](https://svelte.dev/tutorial/svelte/default-values)
 > - [svelte.dev/tutorial/svelte/spread-props](https://svelte.dev/tutorial/svelte/spread-props)
 
 ---
 
-## 3.1 ¿Qué son las Props?
+## 3.1 Qué son las Props
 
 Las **props** (propiedades) son la forma en que un componente padre **pasa datos** a un componente hijo. Son la base de la composición de componentes.
 
 ```
 App.svelte (padre)
-│
-│  <Tarjeta titulo="Hola" color="blue" />
-│         ↓ pasa datos
-│
-└── Tarjeta.svelte (hijo)
+|
+|  <Tarjeta titulo="Hola" color="blue" />
+|         -> pasa datos
+|
++-- Tarjeta.svelte (hijo)
        recibe: { titulo, color }
 ```
 
@@ -67,14 +67,14 @@ Puedes definir valores por defecto directamente en la desestructuración:
   <h2>{titulo}</h2>
   <p>{descripcion}</p>
   {#if activa}
-    <span class="badge">✓ Activa</span>
+    <span class="badge">Activa</span>
   {/if}
 </div>
 ```
 
 ```svelte
 <!-- App.svelte -->
-<!-- Sin pasar props → usa valores por defecto -->
+<!-- Sin pasar props -> usa valores por defecto -->
 <Tarjeta />
 
 <!-- Pasando algunas props -->
@@ -132,23 +132,23 @@ Por defecto, las props son **de solo lectura** desde el hijo. Si el padre quiere
 <input type="range" bind:value={valor} min="0" max="100" />
 ```
 
-> 💡 `$bindable()` marca una prop como enlazable en ambas direcciones.
+> `$bindable()` marca una prop como enlazable en ambas direcciones.
 
 ---
 
 ## 3.6 Flujo de Datos: Unidireccional
 
 ```
-Padre → (props) → Hijo        [siempre permitido]
-Hijo  → (bind:) → Padre       [requiere $bindable]
-Hijo  → (eventos) → Padre     [patrón alternativo]
+Padre -> (props) -> Hijo        [siempre permitido]
+Hijo  -> (bind:) -> Padre       [requiere $bindable]
+Hijo  -> (eventos) -> Padre     [patrón alternativo]
 ```
 
 El flujo unidireccional hace el código más **predecible y fácil de depurar**.
 
 ---
 
-## 🧪 Mini Página: Galería de Tarjetas
+## Mini Página: Galería de Tarjetas
 
 Muestra una galería de tarjetas de proyectos, donde cada tarjeta es un componente que recibe props.
 
@@ -158,12 +158,12 @@ Muestra una galería de tarjetas de proyectos, donde cada tarjeta es un componen
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
-1. **Fácil:** Agrega una prop `icono` (emoji) a `TarjetaProyecto.svelte` con valor por defecto "📁".
+1. **Fácil:** Agrega una prop `icono` a `TarjetaProyecto.svelte` con valor por defecto "carpeta".
 2. **Medio:** Agrega una prop `etiquetas` que sea un array de strings y muéstralos como badges.
 3. **Difícil:** Crea un componente `Galeria.svelte` que reciba un array de objetos y renderice múltiples `TarjetaProyecto` con spread props.
 
 ---
 
-*← [Sección 02: Reactividad](../02-reactividad/) · [Sección 04: Lógica →](../04-logica/)*
+*<- [Sección 02: Reactividad](../02-reactividad/) · [Sección 04: Lógica ->](../04-logica/)*

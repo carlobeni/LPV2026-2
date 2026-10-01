@@ -1,6 +1,6 @@
 # Sección 07 — Clases y Estilos Dinámicos
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/classes](https://svelte.dev/tutorial/svelte/classes)
 > - [svelte.dev/tutorial/svelte/styles](https://svelte.dev/tutorial/svelte/styles)
 > - [svelte.dev/tutorial/svelte/component-styles](https://svelte.dev/tutorial/svelte/component-styles)
@@ -29,7 +29,7 @@
 </button>
 ```
 
-> 💡 La directiva `class:nombre={condicion}` agrega la clase `nombre` solo cuando la condición es `true`. Es más legible que las expresiones ternarias.
+> La directiva `class:nombre={condicion}` agrega la clase `nombre` solo cuando la condición es `true`. Es más legible que las expresiones ternarias.
 
 ### Shorthand cuando variable y clase tienen el mismo nombre:
 ```svelte
@@ -140,7 +140,7 @@ Para pasar variables CSS a componentes hijos, usa el atributo especial `--`:
 
 ---
 
-## 🧪 Mini Página: Selector de Tema
+## Mini Página: Selector de Tema
 
 Una interfaz con toggle entre tema claro y oscuro, más un selector de color de acento.
 
@@ -148,7 +148,7 @@ Una interfaz con toggle entre tema claro y oscuro, más un selector de color de 
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
 1. **Fácil:** Agrega un tercer tema "sepia" con colores cálidos.
 2. **Medio:** Guarda el tema seleccionado en `localStorage` para que persista al recargar.
@@ -156,4 +156,4 @@ Una interfaz con toggle entre tema claro y oscuro, más un selector de color de 
 
 ---
 
-*← [Sección 06: Bindings](../06-bindings/) · [Sección 08: Transiciones →](../08-transiciones/)*
+*<- [Sección 06: Bindings](../06-bindings/) · [Sección 08: Transiciones ->](../08-transiciones/)*

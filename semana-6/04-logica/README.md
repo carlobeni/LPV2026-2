@@ -1,6 +1,6 @@
 # Sección 04 — Lógica en el Template: `{#if}`, `{#each}`, `{#await}`
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/if-blocks](https://svelte.dev/tutorial/svelte/if-blocks)
 > - [svelte.dev/tutorial/svelte/each-blocks](https://svelte.dev/tutorial/svelte/each-blocks)
 > - [svelte.dev/tutorial/svelte/await-blocks](https://svelte.dev/tutorial/svelte/await-blocks)
@@ -79,7 +79,7 @@ Para renderizar una lista de elementos:
 {/each}
 ```
 
-> 💡 Siempre usa una key única cuando el orden de la lista puede cambiar. Sin key, Svelte podría reutilizar el DOM de forma incorrecta.
+> Siempre usa una key única cuando el orden de la lista puede cambiar. Sin key, Svelte podría reutilizar el DOM de forma incorrecta.
 
 ---
 
@@ -100,7 +100,7 @@ Para manejar operaciones asíncronas (como llamadas a APIs):
 
 {#await promesa}
   <!-- Estado: cargando -->
-  <p>⏳ Cargando datos...</p>
+  <p>Cargando datos...</p>
 
 {:then datos}
   <!-- Estado: resuelto exitosamente -->
@@ -110,7 +110,7 @@ Para manejar operaciones asíncronas (como llamadas a APIs):
 
 {:catch error}
   <!-- Estado: error -->
-  <p>❌ Error: {error.message}</p>
+  <p>Error: {error.message}</p>
 {/await}
 ```
 
@@ -128,24 +128,24 @@ Para manejar operaciones asíncronas (como llamadas a APIs):
 ```
 Svelte Template Logic:
 
-{#if condicion}        → Solo renderiza si condicion = true
-{:else if otra}        → Alternativa condicional
-{:else}                → Caso por defecto
+{#if condicion}        -> Solo renderiza si condicion = true
+{:else if otra}        -> Alternativa condicional
+{:else}                -> Caso por defecto
 {/if}
 
-{#each array as item}  → Itera sobre un array
-{:else}                → Cuando el array está vacío
+{#each array as item}  -> Itera sobre un array
+{:else}                -> Cuando el array está vacío
 {/each}
 
-{#await promesa}       → Estado de carga
-{:then resultado}      → Promesa resuelta
-{:catch error}         → Promesa rechazada
+{#await promesa}       -> Estado de carga
+{:then resultado}      -> Promesa resuelta
+{:catch error}         -> Promesa rechazada
 {/await}
 ```
 
 ---
 
-## 🧪 Mini Página: Dashboard de Tareas
+## Mini Página: Dashboard de Tareas
 
 Un panel de gestión de tareas que combina `{#if}`, `{#each}` y `{#await}`.
 
@@ -154,7 +154,7 @@ Un panel de gestión de tareas que combina `{#if}`, `{#each}` y `{#await}`.
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
 1. **Fácil:** Agrega un filtro para mostrar solo las tareas completadas o solo las pendientes.
 2. **Medio:** Implementa la capacidad de editar el texto de una tarea existente.
@@ -162,4 +162,4 @@ Un panel de gestión de tareas que combina `{#if}`, `{#each}` y `{#await}`.
 
 ---
 
-*← [Sección 03: Props](../03-props/) · [Sección 05: Eventos →](../05-eventos/)*
+*<- [Sección 03: Props](../03-props/) · [Sección 05: Eventos ->](../05-eventos/)*

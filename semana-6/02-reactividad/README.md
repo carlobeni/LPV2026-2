@@ -1,13 +1,13 @@
 # Sección 02 — Reactividad con `$state` y `$derived`
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/state](https://svelte.dev/tutorial/svelte/state)
 > - [svelte.dev/tutorial/svelte/derived-state](https://svelte.dev/tutorial/svelte/derived-state)
 > - [svelte.dev/tutorial/svelte/effects](https://svelte.dev/tutorial/svelte/effects)
 
 ---
 
-## 2.1 ¿Qué es el Estado?
+## 2.1 Qué es el Estado
 
 El **estado** es cualquier dato que puede cambiar a lo largo del tiempo y que debe reflejarse en la interfaz.
 
@@ -15,15 +15,15 @@ En Svelte 5, el estado se declara con la **rune** `$state`:
 
 ```svelte
 <script>
-  // ❌ Svelte 4 (antiguo)
+  // Svelte 4 (antiguo)
   let contador = 0;
 
-  // ✅ Svelte 5 (nuevo con runes)
+  // Svelte 5 (nuevo con runes)
   let contador = $state(0);
 </script>
 ```
 
-> 🔑 **¿Qué es una "rune"?** Son funciones especiales del compilador de Svelte 5 que comienzan con `$`. No son funciones JavaScript normales, sino señales al compilador para activar reactividad.
+> **Qué es una "rune":** Son funciones especiales del compilador de Svelte 5 que comienzan con `$`. No son funciones JavaScript normales, sino señales al compilador para activar reactividad.
 
 ---
 
@@ -36,7 +36,7 @@ Cuando una variable se declara con `$state`, Svelte **rastrea automáticamente**
   let contador = $state(0);
 
   function incrementar() {
-    contador += 1;  // ← Svelte detecta este cambio y actualiza el DOM
+    contador += 1;  // <- Svelte detecta este cambio y actualiza el DOM
   }
 
   function reiniciar() {
@@ -71,7 +71,7 @@ Cuando un valor **depende de otro** estado, usamos `$derived`:
 <p>Total con IVA (10%): ${totalConIVA.toFixed(2)}</p>
 ```
 
-> 💡 `$derived` es equivalente a las "propiedades computadas" de Vue o `useMemo` en React, pero mucho más simple.
+> `$derived` es equivalente a las "propiedades computadas" de Vue o `useMemo` en React, pero mucho más simple.
 
 ---
 
@@ -96,7 +96,7 @@ Cuando un valor **depende de otro** estado, usamos `$derived`:
 <p>Hola, {nombre || "desconocido"}!</p>
 ```
 
-> ⚠️ No uses `$effect` para calcular valores derivados; para eso existe `$derived`.
+> No uses `$effect` para calcular valores derivados; para eso existe `$derived`.
 
 ---
 
@@ -109,16 +109,16 @@ Para arrays y objetos, `$state` también rastrea cambios internos:
   let lista = $state(["manzana", "banana"]);
 
   function agregar() {
-    lista.push("naranja");  // ← Svelte detecta el push()
+    lista.push("naranja");  // <- Svelte detecta el push()
   }
 
   function eliminar(indice) {
-    lista.splice(indice, 1);  // ← También detecta splice()
+    lista.splice(indice, 1);  // <- También detecta splice()
   }
 </script>
 
 {#each lista as item, i}
-  <p>{item} <button onclick={() => eliminar(i)}>✕</button></p>
+  <p>{item} <button onclick={() => eliminar(i)}>x</button></p>
 {/each}
 <button onclick={agregar}>Agregar naranja</button>
 ```
@@ -129,17 +129,17 @@ Para arrays y objetos, `$state` también rastrea cambios internos:
 
 ```
 Sin $state (no funciona en Svelte 5):       Con $state (funciona correctamente):
-─────────────────────────────────────────  ──────────────────────────────────────
+-----------------------------------------  --------------------------------------
 let contador = 0;                           let contador = $state(0);
-                                           
+
 function incrementar() {                    function incrementar() {
-  contador++;  // El DOM NO se actualiza     contador++;  // El DOM SÍ se actualiza
+  contador++;  // El DOM NO se actualiza     contador++;  // El DOM SI se actualiza
 }                                           }
 ```
 
 ---
 
-## 🧪 Mini Página: Contador Interactivo
+## Mini Página: Contador Interactivo
 
 Un contador con múltiples operaciones para ver la reactividad en acción.
 
@@ -150,17 +150,18 @@ Un contador con múltiples operaciones para ver la reactividad en acción.
 npm create vite@latest semana6-02 -- --template svelte
 cd semana6-02
 # Reemplaza src/App.svelte
-npm install && npm run dev
+npm install
+npm run dev
 ```
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
-1. **Fácil:** Agrega un botón "−1" que decremente el contador pero no permita valores menores a 0.
+1. **Fácil:** Agrega un botón "-1" que decremente el contador pero no permita valores menores a 0.
 2. **Medio:** Usa `$derived` para mostrar si el contador es par o impar.
 3. **Difícil:** Agrega un historial de los últimos 5 valores del contador usando un array `$state`.
 
 ---
 
-*← [Sección 01: Primer Componente](../01-introduccion/) · [Sección 03: Props →](../03-props/)*
+*<- [Sección 01: Primer Componente](../01-introduccion/) · [Sección 03: Props ->](../03-props/)*

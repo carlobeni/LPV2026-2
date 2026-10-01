@@ -1,6 +1,6 @@
 # Sección 05 — Eventos DOM y Manejadores
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/dom-events](https://svelte.dev/tutorial/svelte/dom-events)
 > - [svelte.dev/tutorial/svelte/inline-handlers](https://svelte.dev/tutorial/svelte/inline-handlers)
 
@@ -15,7 +15,7 @@ En Svelte 5, los eventos se manejan con el atributo `on` + nombre del evento:
 <button onclick={manejarClick}>Haz click</button>
 ```
 
-> ⚠️ **Svelte 5 vs Svelte 4:** En Svelte 4 se usaba `on:click`. En Svelte 5 se usa `onclick` (sin los dos puntos), igual que el HTML estándar.
+> **Svelte 5 vs Svelte 4:** En Svelte 4 se usaba `on:click`. En Svelte 5 se usa `onclick` (sin los dos puntos), igual que el HTML estándar.
 
 ---
 
@@ -26,7 +26,7 @@ En Svelte 5, los eventos se manejan con el atributo `on` + nombre del evento:
   let mensajes = $state([]);
 
   function manejarClick() {
-    mensajes = [...mensajes, "¡Botón presionado!"];
+    mensajes = [...mensajes, "Botón presionado"];
   }
 
   // La función recibe automáticamente el objeto Event
@@ -69,12 +69,12 @@ En Svelte 5, los modificadores se aplican manualmente con la API del DOM:
 ```svelte
 <script>
   function manejarSubmit(e) {
-    e.preventDefault();  // ← equivalente al modificador preventDefault
+    e.preventDefault();  // <- equivalente al modificador preventDefault
     // procesar el formulario...
   }
 
   function manejarClick(e) {
-    e.stopPropagation();  // ← evita que el evento suba al padre
+    e.stopPropagation();  // <- evita que el evento suba al padre
   }
 </script>
 
@@ -129,7 +129,7 @@ En Svelte 5, los modificadores se aplican manualmente con la API del DOM:
 
 ---
 
-## 🧪 Mini Página: Formulario de Contacto
+## Mini Página: Formulario de Contacto
 
 Un formulario completo con validación de eventos en tiempo real.
 
@@ -137,7 +137,7 @@ Un formulario completo con validación de eventos en tiempo real.
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
 1. **Fácil:** Agrega un botón "Limpiar formulario" que reinicie todos los campos.
 2. **Medio:** Implementa un contador de caracteres para el campo "mensaje" que avise cuando supere los 200 caracteres.
@@ -145,4 +145,4 @@ Un formulario completo con validación de eventos en tiempo real.
 
 ---
 
-*← [Sección 04: Lógica](../04-logica/) · [Sección 06: Bindings →](../06-bindings/)*
+*<- [Sección 04: Lógica](../04-logica/) · [Sección 06: Bindings ->](../06-bindings/)*

@@ -5,19 +5,19 @@
 
 ---
 
-## ¿Qué es Svelte?
+## Qué es Svelte
 
 **Svelte** es un framework de JavaScript para construir interfaces de usuario. A diferencia de React o Vue, Svelte **compila** el código en JavaScript vanilla optimizado durante la construcción, eliminando la sobrecarga del DOM virtual en tiempo de ejecución.
 
 ```
-Tu código .svelte  →  Compilador Svelte  →  JS puro + HTML + CSS optimizados
+Tu código .svelte  ->  Compilador Svelte  ->  JS puro + HTML + CSS optimizados
 ```
 
 ### Ventajas clave frente a otros frameworks
 
 | Característica        | React / Vue          | Svelte               |
 |-----------------------|----------------------|----------------------|
-| DOM Virtual           | ✅ Sí (overhead)    | ❌ No necesita       |
+| DOM Virtual           | Sí (overhead)        | No necesita          |
 | Tamaño del bundle     | ~40-100 KB           | ~2-10 KB             |
 | Reactividad           | Hooks / Options API  | Nativa con `$state`  |
 | Curva de aprendizaje  | Media-Alta           | Baja                 |
@@ -73,7 +73,7 @@ npm run dev
 ### Opción C — Playground Online
 
 Puedes practicar sin instalar nada en:
-👉 **[svelte.dev/playground](https://svelte.dev/playground)**
+**[svelte.dev/playground](https://svelte.dev/playground)**
 
 ---
 
@@ -100,7 +100,7 @@ Todo componente Svelte tiene hasta tres secciones:
 </style>
 ```
 
-> 💡 El `<style>` en Svelte es **scoped** por defecto: los estilos solo afectan al componente actual.
+> El `<style>` en Svelte es **scoped** por defecto: los estilos solo afectan al componente actual.
 
 ---
 

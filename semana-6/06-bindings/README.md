@@ -1,6 +1,6 @@
 # Sección 06 — Bindings Bidireccionales
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/text-inputs](https://svelte.dev/tutorial/svelte/text-inputs)
 > - [svelte.dev/tutorial/svelte/numeric-inputs](https://svelte.dev/tutorial/svelte/numeric-inputs)
 > - [svelte.dev/tutorial/svelte/checkbox-inputs](https://svelte.dev/tutorial/svelte/checkbox-inputs)
@@ -8,7 +8,7 @@
 
 ---
 
-## 6.1 ¿Qué es un Binding?
+## 6.1 Qué es un Binding
 
 Un **binding** es una conexión bidireccional entre un elemento del DOM y una variable de Svelte.
 
@@ -23,8 +23,8 @@ Sin binding (manual):
 </script>
 
 <input value={nombre} oninput={actualizar} />
-<!-- nombre → input: value={nombre}  -->
-<!-- input → nombre: oninput={actualizar}  -->
+<!-- nombre -> input: value={nombre}  -->
+<!-- input -> nombre: oninput={actualizar}  -->
 ```
 
 Con `bind:` (bidireccional y automático):
@@ -73,7 +73,7 @@ Svelte convierte automáticamente el valor a número:
 <input type="range" bind:value={temperatura} min="0" max="100" step="0.5" />
 
 <p>Edad: {edad} (tipo: {typeof edad})</p>         <!-- "number" -->
-<p>Temperatura: {temperatura.toFixed(1)}°C</p>
+<p>Temperatura: {temperatura.toFixed(1)} grados</p>
 ```
 
 ---
@@ -133,7 +133,7 @@ Svelte convierte automáticamente el valor a número:
 
 ---
 
-## 🧪 Mini Página: Editor de Texto en Vivo
+## Mini Página: Editor de Texto en Vivo
 
 Un editor con vista previa en tiempo real que demuestra múltiples tipos de binding.
 
@@ -141,7 +141,7 @@ Un editor con vista previa en tiempo real que demuestra múltiples tipos de bind
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
 1. **Fácil:** Agrega un slider para controlar el tamaño de fuente del preview.
 2. **Medio:** Agrega checkboxes para aplicar negrita, cursiva y subrayado al texto.
@@ -149,4 +149,4 @@ Un editor con vista previa en tiempo real que demuestra múltiples tipos de bind
 
 ---
 
-*← [Sección 05: Eventos](../05-eventos/) · [Sección 07: Estilos →](../07-estilos/)*
+*<- [Sección 05: Eventos](../05-eventos/) · [Sección 07: Estilos ->](../07-estilos/)*

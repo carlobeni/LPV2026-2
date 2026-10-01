@@ -1,6 +1,6 @@
 # Sección 08 — Transiciones y Animaciones
 
-> 📖 Referencia:
+> Referencia:
 > - [svelte.dev/tutorial/svelte/transition](https://svelte.dev/tutorial/svelte/transition)
 > - [svelte.dev/tutorial/svelte/adding-parameters-to-transitions](https://svelte.dev/tutorial/svelte/adding-parameters-to-transitions)
 > - [svelte.dev/tutorial/svelte/in-and-out](https://svelte.dev/tutorial/svelte/in-and-out)
@@ -37,7 +37,7 @@ Svelte incluye varias transiciones listas para usar:
   import { fade, fly, slide, scale, blur, draw } from 'svelte/transition';
 </script>
 
-<!-- Fade: opacidad 0 → 1 -->
+<!-- Fade: opacidad 0 -> 1 -->
 <div transition:fade>...</div>
 
 <!-- Fly: mueve + fade -->
@@ -120,7 +120,7 @@ Para animar el reordenamiento de elementos en `{#each}`:
 </ul>
 ```
 
-> 💡 `animate:flip` requiere que los elementos tengan una **key** en el `{#each}`.
+> `animate:flip` requiere que los elementos tengan una **key** en el `{#each}`.
 
 ---
 
@@ -147,7 +147,7 @@ Para animar el reordenamiento de elementos en `{#each}`:
 
 ---
 
-## 🧪 Mini Página: Lista con Transiciones
+## Mini Página: Lista con Transiciones
 
 Una lista de tareas donde los elementos entran y salen con transiciones, y se pueden reordenar con animaciones.
 
@@ -155,7 +155,7 @@ Una lista de tareas donde los elementos entran y salen con transiciones, y se pu
 
 ---
 
-## ✏️ Ejercicios
+## Ejercicios
 
 1. **Fácil:** Cambia la transición de entrada de `fly` a `scale` y observa la diferencia.
 2. **Medio:** Agrega un selector de transición para que el usuario pueda elegir entre `fade`, `fly`, `slide` y `scale`.
@@ -163,4 +163,4 @@ Una lista de tareas donde los elementos entran y salen con transiciones, y se pu
 
 ---
 
-*← [Sección 07: Estilos](../07-estilos/) · [README principal →](../README.md)*
+*<- [Sección 07: Estilos](../07-estilos/) · [README principal ->](../README.md)*
