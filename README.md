@@ -1,117 +1,99 @@
-## Semana 6 — Introducción a Svelte 5
-### Lenguaje de Programación Visual · Ingeniería Mecatrónica - FIUNA
+# Semana 7 — SvelteKit 2 + Svelte 5: De los Fundamentos al Control Industrial Full-Stack
 
-> **Basado en:** [svelte.dev/tutorial](https://svelte.dev/tutorial)
+### Lenguaje de Programación Visual · Ingeniería Mecatrónica — FIUNA (2026-2)
+**Profesor:** Jorge Luis Tillería Mereles  
+**Auxiliar de Práctica:** Carlos María Benítez Cardozo  
+
+> **Basado en la documentación oficial:** [svelte.dev/docs/kit](https://svelte.dev/docs/kit)
 
 ---
 
-## Qué es Svelte
+## 1. Introducción a SvelteKit
 
-**Svelte** es un framework de JavaScript para construir interfaces de usuario. A diferencia de React o Vue, Svelte **compila** el código en JavaScript vanilla optimizado durante la construcción, eliminando la sobrecarga del DOM virtual en tiempo de ejecución.
+En la **Semana 6**, exploramos los fundamentos de **Svelte 5** como compilador de interfaces de usuario y su nuevo paradigma de reactividad basado en **Runes** (`$state`, `$derived`, `$effect`, `$props`).
+
+En esta **Semana 7**, damos el salto al desarrollo **Full-Stack profesional con SvelteKit 2**. SvelteKit extiende las capacidades de Svelte dotándolo de:
+- **Enrutamiento basado en archivos (File-based Routing):** Definición declarativa de rutas estáticas, dinámicas y rest.
+- **Layouts Jerárquicos Persistentes:** Creación de UI Shells industriales que no se recargan al navegar.
+- **Carga de Datos en Servidor (`load`):** Conexión protegida con bases de datos, buses de campo y drivers de hardware.
+- **Mutaciones Progresivas (Form Actions + `use:enhance`):** Modificación de estado con validación en servidor y soporte de accesibilidad nativa.
+- **Rutas de Servidor y Streaming:** Endpoints REST independientes y transmisión en vivo por *Server-Sent Events (SSE)*.
+- **Middleware Global de Seguridad (Hooks):** Autenticación por cookies (RBAC) y encabezados de rendimiento `Server-Timing`.
 
 ```
-Tu código .svelte  ->  Compilador Svelte  ->  JS puro + HTML + CSS optimizados
+┌─────────────────────────────────────────────────────────────────┐
+│                    NAVEGADOR CLIENTE (SPA)                     │
+│  Runes Svelte 5 · Hidratación · EventSource (SSE) · use:enhance │
+└────────────────────────▲───────────────────▲────────────────────┘
+                         │ (SSR / SSE / JSON)│ (Form Actions / POST)
+┌────────────────────────┴───────────────────┴────────────────────┐
+│                    SERVIDOR SVELTEKIT 2                        │
+│                                                                 │
+│   src/hooks.server.js ──> Interceptación global de peticiones   │
+│   +page.server.js     ──> Carga de datos segura y Form Actions  │
+│   +server.js          ──> Endpoints API REST y streaming SSE    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Ventajas clave frente a otros frameworks
+---
 
-| Característica        | React / Vue          | Svelte               |
-|-----------------------|----------------------|----------------------|
-| DOM Virtual           | Sí (overhead)        | No necesita          |
-| Tamaño del bundle     | ~40-100 KB           | ~2-10 KB             |
-| Reactividad           | Hooks / Options API  | Nativa con `$state`  |
-| Curva de aprendizaje  | Media-Alta           | Baja                 |
-| Sintaxis              | JSX / Template       | HTML + JS directo    |
+## 2. Estructura Didáctica de la Semana 7
+
+El contenido ha sido dividido pedagógicamente en carpetas modulares que progresan desde los conceptos básicos hasta un sistema SCADA completo y avanzado:
+
+| Sección | Directorio | Tema Central | Ejemplos Incluidos |
+|---|---|---|---|
+| **01** | [`01-enrutamiento-y-paginas/`](./01-enrutamiento-y-paginas/) | File-Based Routing | Rutas estáticas, dinámicas `[id]`, comodines `[...slug]` y `goto()`. |
+| **02** | [`02-layouts-y-anidacion/`](./02-layouts-y-anidacion/) | Layouts y UI Shells | Snippets `{@render children()}`, sub-layouts anidados y reseteo `@`. |
+| **03** | [`03-carga-de-datos-load/`](./03-carga-de-datos-load/) | Carga en Servidor | `+page.server.js`, tipado `$props()`, errores `error(404)` y `+error.svelte`. |
+| **04** | [`04-form-actions-y-mutaciones/`](./04-form-actions-y-mutaciones/) | Form Actions | Mutaciones progresivas, `use:enhance`, validación con `fail()` y spinners. |
+| **05** | [`05-api-endpoints-server-routes/`](./05-api-endpoints-server-routes/) | Rutas API y Streaming | Endpoints REST (`+server.js`), Server-Sent Events (SSE) y exportación CSV. |
+| **06** | [`06-hooks-y-middleware/`](./06-hooks-y-middleware/) | Hooks de Servidor | `hooks.server.js`, control de acceso (RBAC), `locals` y `Server-Timing`. |
+| **07** | [`07-proyecto-avanzado-dashboard/`](./07-proyecto-avanzado-dashboard/) | **Proyecto Avanzado SCADA** | **Plataforma Full-Stack ejecutable:** telemetría 1 Hz en vivo, parada de emergencia, osciloscopio reactivo SVG y control PID. |
 
 ---
 
-## Requisitos Previos
+## 3. Requisitos del Entorno
 
-- Node.js v18 o superior
-- npm v9 o superior
-- Conocimientos básicos de HTML, CSS y JavaScript
-
----
-
-## Estructura de esta Guía
-
-| Sección | Tema | Mini Página |
-|---------|------|-------------|
-| [01](./01-introduccion/) | Primer Componente & Atributos Dinámicos | Tarjeta de perfil |
-| [02](./02-reactividad/) | Estado Reactivo con `$state` | Contador interactivo |
-| [03](./03-props/) | Props y comunicación entre componentes | Galería de tarjetas |
-| [04](./04-logica/) | Bloques `{#if}`, `{#each}`, `{#await}` | Dashboard de lista |
-| [05](./05-eventos/) | Eventos DOM y manejadores | Formulario de contacto |
-| [06](./06-bindings/) | Bindings bidireccionales | Editor de texto en vivo |
-| [07](./07-estilos/) | Clases dinámicas y estilos reactivos | Tema claro/oscuro |
-| [08](./08-transiciones/) | Transiciones y animaciones | Lista animada |
+- **Node.js:** v18.18 o superior (v20+ recomendado)
+- **npm:** v9 o superior
+- **Navegador Moderno:** Chrome, Edge o Firefox con soporte SSE y Web APIs
 
 ---
 
-## Configuración del Proyecto
+## 4. Inicio Rápido: Ejecución del Proyecto Avanzado
 
-### Opción A — Proyecto nuevo con `sv create` (Recomendado)
+Para ejecutar inmediatamente la aplicación full-stack de la **Sección 07**:
 
 ```bash
-# Crear un nuevo proyecto SvelteKit
-npx sv create mi-app-svelte
-cd mi-app-svelte
+# 1. Entrar al directorio del proyecto avanzado
+cd 07-proyecto-avanzado-dashboard
+
+# 2. Instalar dependencias (si es necesario)
 npm install
+
+# 3. Iniciar el servidor local de desarrollo con Vite
 npm run dev
 ```
 
-### Opción B — Svelte puro con Vite
+Navega a:  
+👉 **`http://localhost:5173`**
 
+### Validar integridad de tipos y compilación:
 ```bash
-# Crear proyecto Svelte sin SvelteKit
-npm create vite@latest mi-app -- --template svelte
-cd mi-app
-npm install
-npm run dev
+npm run check
 ```
 
-### Opción C — Playground Online
+---
 
-Puedes practicar sin instalar nada en:
-**[svelte.dev/playground](https://svelte.dev/playground)**
+## 5. Metodología de Estudio Sugerida
+
+1. **Lectura Guiada:** Comienza por el `README.md` de la **Sección 01** y avanza secuencialmente hasta la **Sección 06** para afianzar cada concepto teórico.
+2. **Inspección de Código:** Analiza los componentes `.svelte` y scripts `.server.js` incluidos en cada carpeta para entender la sintaxis moderna con Runes de Svelte 5.
+3. **Ejecución y Maniobra:** Inicia el proyecto avanzado de la **Sección 07** para experimentar la integración de todos los componentes en una aplicación industrial real.
+4. **Ejercicios Prácticos:** Completa los retos propuestos al final de cada guía para consolidar tus habilidades.
 
 ---
 
-## Anatomía de un Componente `.svelte`
-
-Todo componente Svelte tiene hasta tres secciones:
-
-```svelte
-<!-- 1. SCRIPT: lógica JavaScript -->
-<script>
-  let nombre = $state("Mundo");
-</script>
-
-<!-- 2. TEMPLATE: marcado HTML con expresiones -->
-<h1>Hola, {nombre}!</h1>
-<input bind:value={nombre} />
-
-<!-- 3. STYLE: CSS con alcance al componente -->
-<style>
-  h1 {
-    color: rebeccapurple;
-    font-family: sans-serif;
-  }
-</style>
-```
-
-> El `<style>` en Svelte es **scoped** por defecto: los estilos solo afectan al componente actual.
-
----
-
-## Cómo Usar esta Guía
-
-1. Lee la explicación teórica de cada sección
-2. Estudia el código del ejemplo
-3. Ejecuta la mini página en tu navegador
-4. Completa los ejercicios propuestos al final de cada sección
-5. Avanza a la siguiente sección
-
----
-
-*Semana 6 · LPV 2026-2 · FIUNA*
+*Facultad de Ingeniería · Universidad Nacional de Asunción (FIUNA)*  
+*Lenguajes de Programación Visual — Ciclo 2026-2*

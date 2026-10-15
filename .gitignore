@@ -24,3 +24,10 @@ build/
 *.db
 *.db-wal
 *.db-shm
+
+# Node y Frameworks Web
+node_modules/
+.svelte-kit/
+.output/
+build/
+dist/
