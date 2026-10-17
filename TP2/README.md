@@ -9,28 +9,19 @@ Para la entrega se requiere:
 
 El dominio temático del bot de IA se definirá según el proyecto final elegido en el foro.
 
----
-
-## 1. Integración con API de IA Base (OpenAI u homólogos)
+## Comentarios Adicionales
 
 Para dotar de inteligencia al bot, la aplicación FastAPI debe integrarse con una **API base de modelos de lenguaje**, como la provista por **OpenAI** (o alternativas como Google Gemini, Anthropic Claude o Groq):
 - Tu API en FastAPI funcionará como orquestador y backend intermedio: recibirá las consultas del cliente, gestionará la memoria de la conversación y consultará a la API base (ej. OpenAI) para generar las respuestas.
-- Para este trabajo práctico **no se requiere interfaz gráfica de usuario**; la validación y pruebas se realizarán directamente mediante Swagger UI (`/docs`), Postman o comandos cURL.
-
----
-
-## 2. Definición del Rol y Contexto de la IA (*System Prompt*)
-
-El comportamiento y personalidad del bot deben calibrarse a través del *System Prompt* (instrucciones de sistema) para alinearse estrictamente al contexto temático de su proyecto final elegido en el foro:
+- Para este trabajo práctico **no se requiere interfaz gráfica de usuario**; la validación y pruebas se realizarán directamente mediante Swagger UI (`/docs`) o por terminal como cliente.
+- El comportamiento y personalidad del bot deben calibrarse a través del *System Prompt* (instrucciones de sistema) para alinearse estrictamente al contexto temático de su proyecto final elegido en el foro:
 - **Ejemplos de roles según el dominio del proyecto:**
   - **Analista Estadístico:** Si el proyecto trabaja con datos poblacionales, censos o métricas agregadas, el bot debe comportarse como un experto en análisis de datos, interpretando correlaciones, porcentajes y tendencias numéricas.
   - **Asistente Técnico Industrial:** Si el proyecto abarca telemetría mecatrónica, sensores o maquinaria, el bot debe adoptar el rol de un ingeniero de planta, utilizando terminología técnica precisa, sugiriendo rangos seguros de operación y pautas de mantenimiento preventivo.
   - **Consultor Especializado de Dominio:** Capaz de responder dudas puntuales sobre los registros almacenados en la base de datos poblada en el TP1.
 - El bot debe mantener su personaje asignado de forma consistente y delimitar su alcance temático.
 
----
-
-## 3. Seguridad de Credenciales y Uso de `.env`
+## Seguridad de Credenciales y Uso de `.env`
 
 > [!WARNING]
 > **Protección estricta de la API Key para evitar baneos:**
