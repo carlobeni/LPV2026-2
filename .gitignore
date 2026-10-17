@@ -1,2 +1,29 @@
+# Documentos locales
 *.pdf
 Plan de clases 2026-02.pdf
+
+# Dependencias y artefactos Node / SvelteKit
+node_modules/
+.svelte-kit/
+.output/
+build/
+dist/
+
+# Entornos y variables de entorno
+.env
+.env.*
+!.env.example
+
+# Cachés y entornos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+
+# Bases de datos locales
+*.db
+*.db-wal
+*.db-shm
